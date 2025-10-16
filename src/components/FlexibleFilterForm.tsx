@@ -283,10 +283,14 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     try {
       const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
       
-      // Format dates with time for Monday.com
+      // Format dates with time for Monday.com (using local timezone)
       const now = new Date();
-      const submittedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-      const submittedTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
+      const submittedDate = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0'); // YYYY-MM-DD (local)
+      const submittedTime = String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0') + ':' + 
+        String(now.getSeconds()).padStart(2, '0'); // HH:MM:SS (local)
       
       // Build column values mapped to destination board
       const columnValues: Record<string, any> = {
@@ -308,11 +312,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         },
       };
 
-      // Add event date/time if provided
+      // Add event date/time if provided (using local timezone)
       if (eventDateTime) {
         const eventDateObj = new Date(eventDateTime);
-        const eventDate = eventDateObj.toISOString().split('T')[0]; // YYYY-MM-DD
-        const eventTime = eventDateObj.toTimeString().split(' ')[0]; // HH:MM:SS
+        const eventDate = eventDateObj.getFullYear() + '-' + 
+          String(eventDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(eventDateObj.getDate()).padStart(2, '0'); // YYYY-MM-DD (local)
+        const eventTime = String(eventDateObj.getHours()).padStart(2, '0') + ':' + 
+          String(eventDateObj.getMinutes()).padStart(2, '0') + ':' + 
+          String(eventDateObj.getSeconds()).padStart(2, '0'); // HH:MM:SS (local)
         
         columnValues.date4 = { 
           date: eventDate,
