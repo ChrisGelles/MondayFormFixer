@@ -50,14 +50,34 @@ function App() {
     localStorage.removeItem('destination_board_id');
   };
 
-  // Try to load saved token on mount
+  // Try to load token from environment variable or localStorage on mount
   useEffect(() => {
+    const envToken = import.meta.env.VITE_MONDAY_API_TOKEN;
+    const envDestBoard = import.meta.env.VITE_DESTINATION_BOARD_ID;
     const savedToken = localStorage.getItem('monday_api_token');
     const savedDestBoard = localStorage.getItem('destination_board_id');
-    if (savedToken) {
+    
+    // Use environment variable token if available (for production)
+    if (envToken) {
+      setApiToken(envToken);
+      // Auto-connect with environment token
+      initializeMondayService(envToken).testConnection()
+        .then(connected => {
+          if (connected) {
+            setIsConnected(true);
+          }
+        })
+        .catch(err => {
+          console.error('Auto-connect failed:', err);
+        });
+    } else if (savedToken) {
       setApiToken(savedToken);
     }
-    if (savedDestBoard) {
+    
+    // Use environment variable for destination board ID if available
+    if (envDestBoard) {
+      setDestinationBoardId(envDestBoard);
+    } else if (savedDestBoard) {
       setDestinationBoardId(savedDestBoard);
     }
   }, []);
