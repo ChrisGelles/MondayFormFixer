@@ -135,9 +135,6 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
         setLoading(prev => ({ ...prev, [nextCriterion.id]: true }));
         try {
-          // Get all values for this criterion
-          const allValues = await getUniqueValuesFromColumn(sourceBoardId, nextCriterion.columnId);
-          
           // Filter based on previous selections (skip empty criteria)
           const filters = filterOrder
             .slice(0, lastSelectedIndex + 1)
@@ -577,7 +574,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
             // Disable if only one option (auto-selected) or if previous criterion not chosen
             const isDisabled = (!isPreviousCriterionChosen && position > 0) || 
-                              (criterionId && availableCriteriaForPosition.length === 1);
+                              (!!criterionId && availableCriteriaForPosition.length === 1);
 
             return (
               <div key={position} className="flexible-filter-row">

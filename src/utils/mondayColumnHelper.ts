@@ -141,7 +141,7 @@ export const analyzeColumn = async (boardId: string, columnId: string) => {
         
         if (settings.labels) {
           console.log('\n🏷️  Available Labels/Options:');
-          Object.entries(settings.labels).forEach(([key, value]: [string, any]) => {
+          Object.entries(settings.labels).forEach(([_key, value]: [string, any]) => {
             console.log(`  - ${typeof value === 'string' ? value : value.name || value}`);
           });
         }

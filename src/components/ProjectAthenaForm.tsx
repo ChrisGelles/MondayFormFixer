@@ -42,7 +42,6 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
   const [engagementOptions, setEngagementOptions] = useState<EngagementOption[]>([]);
 
   // Loading states
-  const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [emailError, setEmailError] = useState('');
@@ -201,15 +200,6 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
     
     const column = item.column_values?.find((col: any) => col.id === columnId);
     return column?.text || '';
-  };
-
-  const getUniqueValues = (fieldName: string): string[] => {
-    const values = new Set<string>();
-    sourceItems.forEach(item => {
-      const value = getColumnValue(item, fieldName);
-      if (value) values.add(value);
-    });
-    return Array.from(values).sort();
   };
 
   const getFilteredValues = (
