@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { initializeMondayService } from './services/mondayService';
-import { ProjectAthenaForm } from './components/ProjectAthenaForm';
+import { FlexibleFilterForm } from './components/FlexibleFilterForm';
 import './App.css';
 
 function App() {
@@ -172,7 +172,7 @@ function App() {
 
       {isConfigured && (
         <div className="form-container">
-          <ProjectAthenaForm
+          <FlexibleFilterForm
             sourceBoardId={sourceBoardId}
             destinationBoardId={destinationBoardId}
           />
