@@ -58,7 +58,11 @@ The form shows:
 
 4. Open your browser to the URL shown (usually http://localhost:5173)
 
-## Configuration
+## Project Athena Configuration
+
+### Production Setup
+
+In production, the app automatically connects using environment variables and hides the configuration panel. The setup information below is for development and troubleshooting purposes.
 
 ### Getting Your Monday API Token
 
@@ -68,6 +72,19 @@ The form shows:
 4. Click **My Access Tokens**
 5. Either show your personal token or create a new one
 6. Copy the token
+
+### Board Configuration
+
+**Source Board ID**: `10021032653` (Project Athena Content Database)
+- This board contains the content options that populate the cascading dropdowns
+
+**Destination Board Setup**: Create a new board called "Project Athena Orders" with these columns:
+
+- **Text columns**: Name, Email, Department, Event Duration, Engagement Duration
+- **Date column**: Event Date/Time
+- **Long Text columns**: User Description, Content Description
+- **Dropdown/Text**: PA Category, Depth, Type, Audience, Engagement Name
+- **Status column**: Request Status
 
 ### Finding Board IDs
 
@@ -111,17 +128,15 @@ There are several ways to find column IDs:
 - `dropdown` - Dropdown column
 - `person` - People column
 
-### Setting Up Your Form
+### Development Configuration
+
+For development, you can access the configuration panel by running the app locally without environment variables:
 
 1. **Connect to Monday**: Enter your API token
 2. **Configure Boards**: 
-   - Enter your Source Board ID
+   - Enter your Source Board ID (defaults to 10021032653)
    - Enter your Destination Board ID
-3. **Define Cascade Steps**:
-   - For each step, provide:
-     - Label (what the user sees)
-     - Column ID (which column to read from)
-4. **Start Using**: Once configured, the form will appear below
+3. **Start Using**: Once configured, the form will appear below
 
 ## Usage
 

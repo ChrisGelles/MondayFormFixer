@@ -138,66 +138,75 @@ function App() {
     );
   }
 
+  // Check if running in production (with environment variables)
+  const isProduction = import.meta.env.VITE_MONDAY_API_TOKEN && 
+                      import.meta.env.VITE_SOURCE_BOARD_ID && 
+                      import.meta.env.VITE_DESTINATION_BOARD_ID;
+
   return (
     <div className="app">
-      <div className="header">
-        <h1>Monday Form Fixer</h1>
-        <button onClick={handleDisconnect} className="disconnect-button">
-          Disconnect
-        </button>
-      </div>
+      {!isProduction && (
+        <div className="header">
+          <h1>Monday Form Fixer</h1>
+          <button onClick={handleDisconnect} className="disconnect-button">
+            Disconnect
+          </button>
+        </div>
+      )}
 
-      <div className="config-panel">
-        <h2>Project Athena Setup</h2>
-        
-        <div className="config-section">
-          <h3>Board Configuration</h3>
+      {!isProduction && (
+        <div className="config-panel">
+          <h2>Project Athena Setup</h2>
           
-          <div className="form-group">
-            <label htmlFor="sourceBoardId">Source Board ID (Content Database)</label>
-            <input
-              id="sourceBoardId"
-              type="text"
-              value={sourceBoardId}
-              onChange={(e) => setSourceBoardId(e.target.value)}
-              placeholder="Board ID with PA content"
-            />
-            <small>Currently set to: 10021032653</small>
+          <div className="config-section">
+            <h3>Board Configuration</h3>
+            
+            <div className="form-group">
+              <label htmlFor="sourceBoardId">Source Board ID (Content Database)</label>
+              <input
+                id="sourceBoardId"
+                type="text"
+                value={sourceBoardId}
+                onChange={(e) => setSourceBoardId(e.target.value)}
+                placeholder="Board ID with PA content"
+              />
+              <small>Currently set to: 10021032653</small>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="destinationBoardId">Destination Board ID (Order Form)</label>
+              <input
+                id="destinationBoardId"
+                type="text"
+                value={destinationBoardId}
+                onChange={(e) => {
+                  setDestinationBoardId(e.target.value);
+                  localStorage.setItem('destination_board_id', e.target.value);
+                }}
+                placeholder="Board ID where orders will be created"
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="destinationBoardId">Destination Board ID (Order Form)</label>
-            <input
-              id="destinationBoardId"
-              type="text"
-              value={destinationBoardId}
-              onChange={(e) => {
-                setDestinationBoardId(e.target.value);
-                localStorage.setItem('destination_board_id', e.target.value);
-              }}
-              placeholder="Board ID where orders will be created"
-            />
+          <div className="help-text">
+            <h3>Setting up your Destination Board:</h3>
+            <ol>
+              <li>Create a new board in Monday.com called "Project Athena Orders" (or similar)</li>
+              <li>Add these columns:
+                <ul>
+                  <li><strong>Text columns:</strong> Name, Email, Department, Event Duration, Engagement Duration</li>
+                  <li><strong>Date column:</strong> Event Date/Time</li>
+                  <li><strong>Long Text columns:</strong> User Description, Content Description</li>
+                  <li><strong>Dropdown/Text:</strong> PA Category, Depth, Type, Audience, Engagement Name</li>
+                  <li><strong>Status column:</strong> Request Status</li>
+                </ul>
+              </li>
+              <li>Copy the board ID from the URL and paste it above</li>
+            </ol>
+            <p><strong>Note:</strong> You may need to adjust column IDs in the ProjectAthenaForm.tsx file to match your board's structure.</p>
           </div>
         </div>
-
-        <div className="help-text">
-          <h3>Setting up your Destination Board:</h3>
-          <ol>
-            <li>Create a new board in Monday.com called "Project Athena Orders" (or similar)</li>
-            <li>Add these columns:
-              <ul>
-                <li><strong>Text columns:</strong> Name, Email, Department, Event Duration, Engagement Duration</li>
-                <li><strong>Date column:</strong> Event Date/Time</li>
-                <li><strong>Long Text columns:</strong> User Description, Content Description</li>
-                <li><strong>Dropdown/Text:</strong> PA Category, Depth, Type, Audience, Engagement Name</li>
-                <li><strong>Status column:</strong> Request Status</li>
-              </ul>
-            </li>
-            <li>Copy the board ID from the URL and paste it above</li>
-          </ol>
-          <p><strong>Note:</strong> You may need to adjust column IDs in the ProjectAthenaForm.tsx file to match your board's structure.</p>
-        </div>
-      </div>
+      )}
 
       {isConfigured && (
         <div className="form-container">
