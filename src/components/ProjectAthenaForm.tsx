@@ -52,14 +52,14 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
 
   const mondayService = getMondayService();
 
-  // Column IDs - these should match your Monday board
+  // Column IDs - actual column IDs from Monday board
   const COLUMN_IDS = {
-    paCategory: 'color_mkvnrc08',  // Status column
-    depth: 'text0',                // Update these as needed
-    type: 'text1',
-    audience: 'text2',
-    engagementName: 'name',        // Item name
-    description: 'long_text'       // Long text column
+    paCategory: 'color_mkvnrc08',      // Status column
+    depth: 'color_mkvnyaj9',           // Status column
+    type: 'dropdown_mkvn675a',         // Dropdown column
+    audience: 'color_mkvnh5kw',        // Status column
+    engagementName: 'name',            // Item name
+    description: 'text_mkvnh9sm'       // Text column
   };
 
   // Load all items from source board on mount
@@ -90,41 +90,81 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
 
   // Load filtered options when selections change
   useEffect(() => {
-    if (paCategory) {
-      const depths = getFilteredValues('depth', [{ field: 'paCategory', value: paCategory }]);
-      setDepthOptions(depths);
+    const loadDepthOptions = async () => {
+      if (!paCategory) return;
+      
+      setLoading(prev => ({ ...prev, depth: true }));
+      try {
+        const values = await getUniqueValuesFromColumn(sourceBoardId, COLUMN_IDS.depth);
+        // Filter based on items that match PA Category
+        const filtered = getFilteredValues('depth', [{ field: 'paCategory', value: paCategory }]);
+        setDepthOptions(filtered.length > 0 ? filtered : values);
+      } catch (error) {
+        console.error('Error loading Depth options:', error);
+      } finally {
+        setLoading(prev => ({ ...prev, depth: false }));
+      }
+      
       // Reset subsequent selections
       setDepth('');
       setType('');
       setAudience('');
       setSelectedEngagement('');
-    }
+    };
+    
+    loadDepthOptions();
   }, [paCategory]);
 
   useEffect(() => {
-    if (depth) {
-      const types = getFilteredValues('type', [
-        { field: 'paCategory', value: paCategory },
-        { field: 'depth', value: depth }
-      ]);
-      setTypeOptions(types);
+    const loadTypeOptions = async () => {
+      if (!depth) return;
+      
+      setLoading(prev => ({ ...prev, type: true }));
+      try {
+        const values = await getUniqueValuesFromColumn(sourceBoardId, COLUMN_IDS.type);
+        const filtered = getFilteredValues('type', [
+          { field: 'paCategory', value: paCategory },
+          { field: 'depth', value: depth }
+        ]);
+        setTypeOptions(filtered.length > 0 ? filtered : values);
+      } catch (error) {
+        console.error('Error loading Type options:', error);
+      } finally {
+        setLoading(prev => ({ ...prev, type: false }));
+      }
+      
       setType('');
       setAudience('');
       setSelectedEngagement('');
-    }
+    };
+    
+    loadTypeOptions();
   }, [depth]);
 
   useEffect(() => {
-    if (type) {
-      const audiences = getFilteredValues('audience', [
-        { field: 'paCategory', value: paCategory },
-        { field: 'depth', value: depth },
-        { field: 'type', value: type }
-      ]);
-      setAudienceOptions(audiences);
+    const loadAudienceOptions = async () => {
+      if (!type) return;
+      
+      setLoading(prev => ({ ...prev, audience: true }));
+      try {
+        const values = await getUniqueValuesFromColumn(sourceBoardId, COLUMN_IDS.audience);
+        const filtered = getFilteredValues('audience', [
+          { field: 'paCategory', value: paCategory },
+          { field: 'depth', value: depth },
+          { field: 'type', value: type }
+        ]);
+        setAudienceOptions(filtered.length > 0 ? filtered : values);
+      } catch (error) {
+        console.error('Error loading Audience options:', error);
+      } finally {
+        setLoading(prev => ({ ...prev, audience: false }));
+      }
+      
       setAudience('');
       setSelectedEngagement('');
-    }
+    };
+    
+    loadAudienceOptions();
   }, [type]);
 
   useEffect(() => {
@@ -254,21 +294,21 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
         formattedDate = dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
       }
       
-      // Prepare column values for Monday
+      // Prepare column values for Monday - using actual destination board column IDs
       const columnValues: Record<string, any> = {
-        // User info
+        // User info - these need to match your DESTINATION board column IDs
         text: requesterName,           // Requester Name
         text0: email,                  // Email
         text1: department || '',       // Department (optional)
         text2: eventDuration,          // Event Duration
         text3: requesterDescription,   // Requester Description
-        // Content selections - PA Category is a status column
-        color_mkvnrc08: { label: paCategory },  // PA Category (status column format)
-        text4: depth,                  // Depth
-        text5: type,                   // Type
-        text6: audience,               // Audience
-        text7: selectedEngagement,     // Engagement Name
-        long_text: engagementDetails?.description || '', // Engagement Description
+        // Content selections from SOURCE board - saved to destination
+        color_mkvnrc08: { label: paCategory },      // PA Category (status)
+        color_mkvnyaj9: { label: depth },           // Depth (status)
+        dropdown_mkvn675a: { labels: [type] },      // Type (dropdown)
+        color_mkvnh5kw: { label: audience },        // Audience (status)
+        text4: selectedEngagement,                  // Engagement Name
+        text_mkvnh9sm: engagementDetails?.description || '', // Description
         // Status
         status: { label: 'New Request' }
       };
