@@ -283,19 +283,31 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     try {
       const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
       
-      const formattedDate = eventDateTime ? new Date(eventDateTime).toISOString().split('T')[0] : '';
+      // Format dates
+      const eventDate = eventDateTime ? new Date(eventDateTime).toISOString().split('T')[0] : '';
+      const submittedDate = new Date().toISOString().split('T')[0]; // Current date for submission
       
-      // Build column values with the selected filter values
+      // Build column values mapped to destination board
       const columnValues: Record<string, any> = {
-        text: requesterName,
-        text0: email,
-        text1: department || '',
-        text2: eventDuration,
-        text3: requesterDescription,
-        text4: selectedEngagement,
-        text_mkvnh9sm: selectedEngagementDetails?.description || '',
-        status: { label: 'New Request' }
+        // User Information
+        text_mkwrbr6p: requesterName,                    // Requester Name
+        email_mkwr1ham: { email: email, text: email },   // Email (email column type)
+        text_mkwr3hq0: department || '',                 // Department
+        text_mkwrh03s: eventDuration,                    // Event Duration
+        text_mkwrjgwf: requesterDescription,             // Requester Description
+        
+        // Engagement from source board
+        text_mkwrmbrf: selectedEngagement,               // Engagement Name
+        text_mkwrhk6d: selectedEngagementDetails?.description || '', // Engagement Description
+        
+        // Dates
+        date_mkwsfa4p: { date: submittedDate },          // Date Submitted (auto-filled)
       };
+
+      // Add event date if provided
+      if (eventDate) {
+        columnValues.date4 = { date: eventDate };        // Event Date/Time
+      }
 
       // Add filter values based on their column types
       const paCategory = filterSelections['paCategory'];
@@ -303,15 +315,12 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       const type = filterSelections['type'];
       const audience = filterSelections['audience'];
 
-      if (paCategory) columnValues.color_mkvnrc08 = { label: paCategory };
-      if (depth) columnValues.color_mkvnyaj9 = { label: depth };
-      if (type) columnValues.dropdown_mkvn675a = { labels: [type] };
-      if (audience) columnValues.color_mkvnh5kw = { label: audience };
+      if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // PA Category (status)
+      if (depth) columnValues.color_mkwr6zfj = { label: depth };             // Depth (status)
+      if (type) columnValues.dropdown_mkwr1011 = { labels: [type] };         // Type (dropdown)
+      if (audience) columnValues.color_mkwr3jx0 = { label: audience };       // Audience (status)
 
-      if (formattedDate) {
-        columnValues.date4 = { date: formattedDate };
-      }
-
+      // Item name is the Event/Engagement Name
       const itemName = engagementName || `${requesterName} - ${selectedEngagement}`;
 
       const result = await mondayService.createItem(destinationBoardId, itemName, columnValues);
