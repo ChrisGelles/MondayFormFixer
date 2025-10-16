@@ -40,8 +40,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   const [eventDuration, setEventDuration] = useState('');
   const [requesterDescription, setRequesterDescription] = useState('');
 
-  // Filter order - default order
-  const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', 'depth', 'type', 'audience']);
+  // Filter order - only first position pre-populated with PA Category
+  const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', '', '', '']);
   
   // Filter selections - keyed by criterion ID
   const [filterSelections, setFilterSelections] = useState<Record<string, string>>({});
@@ -115,7 +115,9 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // Find the index of the last selected filter
       let lastSelectedIndex = -1;
       for (let i = 0; i < filterOrder.length; i++) {
-        if (filterSelections[filterOrder[i]]) {
+        const criterionId = filterOrder[i];
+        if (!criterionId) break; // Stop if we hit an empty criterion
+        if (filterSelections[criterionId]) {
           lastSelectedIndex = i;
         } else {
           break;
@@ -125,6 +127,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // Load options for the next filter if there is one
       if (lastSelectedIndex >= 0 && lastSelectedIndex < filterOrder.length - 1) {
         const nextCriterionId = filterOrder[lastSelectedIndex + 1];
+        if (!nextCriterionId) return; // Skip if next criterion is empty
+        
         const nextCriterion = AVAILABLE_CRITERIA.find(c => c.id === nextCriterionId);
         
         if (!nextCriterion) return;
@@ -134,14 +138,17 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
           // Get all values for this criterion
           const allValues = await getUniqueValuesFromColumn(sourceBoardId, nextCriterion.columnId);
           
-          // Filter based on previous selections
-          const filters = filterOrder.slice(0, lastSelectedIndex + 1).map(criterionId => {
-            const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
-            return {
-              columnId: criterion!.columnId,
-              value: filterSelections[criterionId]
-            };
-          });
+          // Filter based on previous selections (skip empty criteria)
+          const filters = filterOrder
+            .slice(0, lastSelectedIndex + 1)
+            .filter(id => id !== '')
+            .map(criterionId => {
+              const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
+              return {
+                columnId: criterion!.columnId,
+                value: filterSelections[criterionId]
+              };
+            });
 
           const filteredItems = sourceItems.filter(item => {
             return filters.every(filter => {
@@ -175,10 +182,12 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   // Load engagement options when all filters are selected
   useEffect(() => {
-    const allFiltersSelected = filterOrder.every(id => filterSelections[id]);
+    // Only check non-empty criteria
+    const definedCriteria = filterOrder.filter(id => id !== '');
+    const allFiltersSelected = definedCriteria.length > 0 && definedCriteria.every(id => filterSelections[id]);
     
     if (allFiltersSelected && sourceItems.length > 0) {
-      const filters = filterOrder.map(criterionId => {
+      const filters = definedCriteria.map(criterionId => {
         const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
         return {
           columnId: criterion!.columnId,
@@ -206,35 +215,24 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
   }, [filterSelections, sourceItems, filterOrder]);
 
-  // Auto-select last criterion when only one option remains
-  useEffect(() => {
-    filterOrder.forEach((criterionId, position) => {
-      // Get available criteria for this position
-      const selectedCriteria = filterOrder.filter((id, idx) => idx !== position);
-      const availableCriteriaForPosition = AVAILABLE_CRITERIA.filter(
-        c => c.id === criterionId || !selectedCriteria.includes(c.id)
-      );
-      
-      // If only one option available and it's not the current one, auto-select it
-      if (availableCriteriaForPosition.length === 1 && availableCriteriaForPosition[0].id !== criterionId) {
-        const newOrder = [...filterOrder];
-        newOrder[position] = availableCriteriaForPosition[0].id;
-        setFilterOrder(newOrder);
-      }
-    });
-  }, [filterOrder]);
-
   const handleFilterOrderChange = (position: number, newCriterionId: string) => {
     const newOrder = [...filterOrder];
     
-    // Find if this criterion is already in the order
-    const existingIndex = newOrder.indexOf(newCriterionId);
-    
-    if (existingIndex !== -1 && existingIndex !== position) {
-      // Swap positions
-      [newOrder[position], newOrder[existingIndex]] = [newOrder[existingIndex], newOrder[position]];
-    } else if (existingIndex === -1) {
-      newOrder[position] = newCriterionId;
+    // If empty string selected, clear this position and all after it
+    if (!newCriterionId) {
+      for (let i = position; i < newOrder.length; i++) {
+        newOrder[i] = '';
+      }
+    } else {
+      // Find if this criterion is already in the order
+      const existingIndex = newOrder.indexOf(newCriterionId);
+      
+      if (existingIndex !== -1 && existingIndex !== position) {
+        // Swap positions
+        [newOrder[position], newOrder[existingIndex]] = [newOrder[existingIndex], newOrder[position]];
+      } else if (existingIndex === -1) {
+        newOrder[position] = newCriterionId;
+      }
     }
     
     setFilterOrder(newOrder);
@@ -242,14 +240,18 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     // Clear selections from this position onward
     const newSelections = { ...filterSelections };
     for (let i = position; i < newOrder.length; i++) {
-      delete newSelections[newOrder[i]];
+      if (newOrder[i]) {
+        delete newSelections[newOrder[i]];
+      }
     }
     setFilterSelections(newSelections);
     
     // Clear options from next position onward
     const newOptions = { ...filterOptions };
     for (let i = position + 1; i < newOrder.length; i++) {
-      delete newOptions[newOrder[i]];
+      if (newOrder[i]) {
+        delete newOptions[newOrder[i]];
+      }
     }
     setFilterOptions(newOptions);
   };
@@ -520,28 +522,29 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
           {filterOrder.map((criterionId, position) => {
             const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
-            if (!criterion) return null;
-
-            const isPreviousSelected = position === 0 || filterSelections[filterOrder[position - 1]];
-            const hasOptions = filterOptions[criterionId] && filterOptions[criterionId].length > 0;
-            const isLoading = loading[criterionId];
-
+            
             // Get available criteria for this position (exclude already selected ones)
-            const selectedCriteria = filterOrder.filter((id, idx) => idx !== position);
+            const selectedCriteria = filterOrder.filter((id, idx) => idx !== position && id !== '');
             const availableCriteriaForPosition = AVAILABLE_CRITERIA.filter(
-              c => c.id === criterionId || !selectedCriteria.includes(c.id)
+              c => !selectedCriteria.includes(c.id)
             );
+
+            const isPreviousSelected = position === 0 || (filterOrder[position - 1] && filterSelections[filterOrder[position - 1]]);
+            const isPreviousCriterionChosen = position === 0 || filterOrder[position - 1] !== '';
+            const hasOptions = criterion && filterOptions[criterionId] && filterOptions[criterionId].length > 0;
+            const isLoading = criterion && loading[criterionId];
 
             return (
               <div key={position} className="flexible-filter-row">
                 <div className="filter-position">
                   <label>Filter {position + 1}</label>
                   <select
-                    value={criterionId}
+                    value={criterionId || ''}
                     onChange={(e) => handleFilterOrderChange(position, e.target.value)}
                     className="filter-order-select"
-                    disabled={availableCriteriaForPosition.length === 1}
+                    disabled={!isPreviousCriterionChosen && position > 0}
                   >
+                    <option value="">-- Select Criterion --</option>
                     {availableCriteriaForPosition.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -549,26 +552,37 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                 </div>
 
                 <div className="filter-value">
-                  <label>Select {criterion.label}</label>
-                  {isLoading ? (
-                    <div className="loading-select">Loading options...</div>
-                  ) : !isPreviousSelected ? (
-                    <select disabled className="disabled-select">
-                      <option>Complete previous filter first</option>
-                    </select>
-                  ) : !hasOptions ? (
-                    <div className="no-options">No options available</div>
+                  {!criterionId ? (
+                    <div className="disabled-select">
+                      <label>Select criterion first</label>
+                      <select disabled className="disabled-select">
+                        <option>Choose a criterion above</option>
+                      </select>
+                    </div>
                   ) : (
-                    <select
-                      value={filterSelections[criterionId] || ''}
-                      onChange={(e) => handleFilterSelection(criterionId, e.target.value)}
-                      className="filter-value-select"
-                    >
-                      <option value="">-- Select {criterion.label} --</option>
-                      {filterOptions[criterionId]?.map(option => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
+                    <>
+                      <label>Select {criterion?.label || 'Value'}</label>
+                      {isLoading ? (
+                        <div className="loading-select">Loading options...</div>
+                      ) : !isPreviousSelected ? (
+                        <select disabled className="disabled-select">
+                          <option>Complete previous filter first</option>
+                        </select>
+                      ) : !hasOptions ? (
+                        <div className="no-options">No options available</div>
+                      ) : (
+                        <select
+                          value={filterSelections[criterionId] || ''}
+                          onChange={(e) => handleFilterSelection(criterionId, e.target.value)}
+                          className="filter-value-select"
+                        >
+                          <option value="">-- Select {criterion?.label} --</option>
+                          {filterOptions[criterionId]?.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
