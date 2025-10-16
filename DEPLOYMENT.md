@@ -36,8 +36,9 @@ Before deploying, add these environment variables:
 
 | Name | Value | Notes |
 |------|-------|-------|
-| `VITE_MONDAY_API_TOKEN` | `your_api_token_here` | Your Monday.com API token |
-| `VITE_DESTINATION_BOARD_ID` | `your_board_id` | Destination board ID (optional, can set in UI) |
+| `VITE_MONDAY_API_TOKEN` | `your_api_token_here` | Your Monday.com API token (required) |
+| `VITE_SOURCE_BOARD_ID` | `10021032653` | Source board ID - Project Athena content (optional, defaults to 10021032653) |
+| `VITE_DESTINATION_BOARD_ID` | `your_board_id` | Destination board ID where orders are created (optional, can set in UI) |
 
 **To get your Monday API token:**
 1. Log in to Monday.com
@@ -102,7 +103,8 @@ Once deployed, **any push to GitHub automatically updates Vercel**:
 - `VITE_MONDAY_API_TOKEN` - Your Monday.com API token
 
 ### Optional
-- `VITE_DESTINATION_BOARD_ID` - Pre-fill destination board ID
+- `VITE_SOURCE_BOARD_ID` - Source board ID (defaults to `10021032653` if not set)
+- `VITE_DESTINATION_BOARD_ID` - Destination board ID (can be set in UI if not provided)
 
 ### How Environment Variables Work
 
@@ -110,7 +112,8 @@ Once deployed, **any push to GitHub automatically updates Vercel**:
 2. **Locally:** Create `.env.local` file (ignored by git):
    ```
    VITE_MONDAY_API_TOKEN=your_token_here
-   VITE_DESTINATION_BOARD_ID=your_board_id
+   VITE_SOURCE_BOARD_ID=10021032653
+   VITE_DESTINATION_BOARD_ID=your_destination_board_id
    ```
 
 ## Troubleshooting

@@ -10,7 +10,7 @@ function App() {
   const [error, setError] = useState('');
 
   // Form configuration
-  const [sourceBoardId, setSourceBoardId] = useState('10021032653'); // Pre-filled
+  const [sourceBoardId, setSourceBoardId] = useState('');
   const [destinationBoardId, setDestinationBoardId] = useState('');
 
   const handleConnect = async () => {
@@ -53,6 +53,7 @@ function App() {
   // Try to load token from environment variable or localStorage on mount
   useEffect(() => {
     const envToken = import.meta.env.VITE_MONDAY_API_TOKEN;
+    const envSourceBoard = import.meta.env.VITE_SOURCE_BOARD_ID;
     const envDestBoard = import.meta.env.VITE_DESTINATION_BOARD_ID;
     const savedToken = localStorage.getItem('monday_api_token');
     const savedDestBoard = localStorage.getItem('destination_board_id');
@@ -72,6 +73,14 @@ function App() {
         });
     } else if (savedToken) {
       setApiToken(savedToken);
+    }
+    
+    // Use environment variable for source board ID if available
+    if (envSourceBoard) {
+      setSourceBoardId(envSourceBoard);
+    } else {
+      // Default to the current Project Athena board
+      setSourceBoardId('10021032653');
     }
     
     // Use environment variable for destination board ID if available
