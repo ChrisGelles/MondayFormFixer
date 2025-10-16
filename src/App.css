@@ -1,0 +1,195 @@
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  color: white;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.disconnect-button {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.disconnect-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.connection-panel {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.connection-panel h1 {
+  margin-top: 0;
+  color: #333;
+  text-align: center;
+}
+
+.connection-panel p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.connect-button {
+  width: 100%;
+  padding: 1rem;
+  background: #0073ea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.connect-button:hover:not(:disabled) {
+  background: #0060c2;
+}
+
+.connect-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.help-text {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.help-text h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.help-text ol {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.help-text li {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.help-text p {
+  margin: 0.5rem 0;
+  color: #666;
+  text-align: left;
+}
+
+.config-panel {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.config-panel h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.config-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.config-section:last-child {
+  border-bottom: none;
+}
+
+.config-section h3 {
+  color: #555;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.cascade-step-config {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.cascade-step-config h4 {
+  margin-top: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
