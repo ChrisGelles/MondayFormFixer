@@ -42,6 +42,7 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
   const [engagementOptions, setEngagementOptions] = useState<EngagementOption[]>([]);
 
   // Loading states
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [emailError, setEmailError] = useState('');
