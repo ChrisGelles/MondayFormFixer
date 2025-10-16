@@ -283,9 +283,10 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     try {
       const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
       
-      // Format dates
-      const eventDate = eventDateTime ? new Date(eventDateTime).toISOString().split('T')[0] : '';
-      const submittedDate = new Date().toISOString().split('T')[0]; // Current date for submission
+      // Format dates with time for Monday.com
+      const now = new Date();
+      const submittedDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      const submittedTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
       
       // Build column values mapped to destination board
       const columnValues: Record<string, any> = {
@@ -300,13 +301,23 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         text_mkwrmbrf: selectedEngagement,               // Engagement Name
         text_mkwrhk6d: selectedEngagementDetails?.description || '', // Engagement Description
         
-        // Dates
-        date_mkwsfa4p: { date: submittedDate },          // Date Submitted (auto-filled)
+        // Date Submitted (auto-filled with current date/time)
+        date_mkwsfa4p: { 
+          date: submittedDate, 
+          time: submittedTime 
+        },
       };
 
-      // Add event date if provided
-      if (eventDate) {
-        columnValues.date4 = { date: eventDate };        // Event Date/Time
+      // Add event date/time if provided
+      if (eventDateTime) {
+        const eventDateObj = new Date(eventDateTime);
+        const eventDate = eventDateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+        const eventTime = eventDateObj.toTimeString().split(' ')[0]; // HH:MM:SS
+        
+        columnValues.date4 = { 
+          date: eventDate,
+          time: eventTime
+        };
       }
 
       // Add filter values based on their column types
