@@ -206,6 +206,24 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
   }, [filterSelections, sourceItems, filterOrder]);
 
+  // Auto-select last criterion when only one option remains
+  useEffect(() => {
+    filterOrder.forEach((criterionId, position) => {
+      // Get available criteria for this position
+      const selectedCriteria = filterOrder.filter((id, idx) => idx !== position);
+      const availableCriteriaForPosition = AVAILABLE_CRITERIA.filter(
+        c => c.id === criterionId || !selectedCriteria.includes(c.id)
+      );
+      
+      // If only one option available and it's not the current one, auto-select it
+      if (availableCriteriaForPosition.length === 1 && availableCriteriaForPosition[0].id !== criterionId) {
+        const newOrder = [...filterOrder];
+        newOrder[position] = availableCriteriaForPosition[0].id;
+        setFilterOrder(newOrder);
+      }
+    });
+  }, [filterOrder]);
+
   const handleFilterOrderChange = (position: number, newCriterionId: string) => {
     const newOrder = [...filterOrder];
     
@@ -508,6 +526,12 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             const hasOptions = filterOptions[criterionId] && filterOptions[criterionId].length > 0;
             const isLoading = loading[criterionId];
 
+            // Get available criteria for this position (exclude already selected ones)
+            const selectedCriteria = filterOrder.filter((id, idx) => idx !== position);
+            const availableCriteriaForPosition = AVAILABLE_CRITERIA.filter(
+              c => c.id === criterionId || !selectedCriteria.includes(c.id)
+            );
+
             return (
               <div key={position} className="flexible-filter-row">
                 <div className="filter-position">
@@ -516,8 +540,9 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                     value={criterionId}
                     onChange={(e) => handleFilterOrderChange(position, e.target.value)}
                     className="filter-order-select"
+                    disabled={availableCriteriaForPosition.length === 1}
                   >
-                    {AVAILABLE_CRITERIA.map(c => (
+                    {availableCriteriaForPosition.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
                   </select>
