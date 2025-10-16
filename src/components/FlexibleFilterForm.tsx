@@ -283,14 +283,19 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     try {
       const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
       
-      // Format dates with time for Monday.com (using local timezone)
+      // Format dates with time for Monday.com
+      // Monday expects UTC time but displays in user's timezone
       const now = new Date();
+      
+      // Get date in local timezone for the date field
       const submittedDate = now.getFullYear() + '-' + 
         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
         String(now.getDate()).padStart(2, '0'); // YYYY-MM-DD (local)
-      const submittedTime = String(now.getHours()).padStart(2, '0') + ':' + 
-        String(now.getMinutes()).padStart(2, '0') + ':' + 
-        String(now.getSeconds()).padStart(2, '0'); // HH:MM:SS (local)
+      
+      // Get time in UTC for the time field (Monday will display in user's timezone)
+      const submittedTime = String(now.getUTCHours()).padStart(2, '0') + ':' + 
+        String(now.getUTCMinutes()).padStart(2, '0') + ':' + 
+        String(now.getUTCSeconds()).padStart(2, '0'); // HH:MM:SS (UTC)
       
       // Build column values mapped to destination board
       const columnValues: Record<string, any> = {
@@ -312,15 +317,19 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         },
       };
 
-      // Add event date/time if provided (using local timezone)
+      // Add event date/time if provided
       if (eventDateTime) {
         const eventDateObj = new Date(eventDateTime);
+        
+        // Get date in local timezone
         const eventDate = eventDateObj.getFullYear() + '-' + 
           String(eventDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
           String(eventDateObj.getDate()).padStart(2, '0'); // YYYY-MM-DD (local)
-        const eventTime = String(eventDateObj.getHours()).padStart(2, '0') + ':' + 
-          String(eventDateObj.getMinutes()).padStart(2, '0') + ':' + 
-          String(eventDateObj.getSeconds()).padStart(2, '0'); // HH:MM:SS (local)
+        
+        // Get time in UTC (Monday will display in user's timezone)
+        const eventTime = String(eventDateObj.getUTCHours()).padStart(2, '0') + ':' + 
+          String(eventDateObj.getUTCMinutes()).padStart(2, '0') + ':' + 
+          String(eventDateObj.getUTCSeconds()).padStart(2, '0'); // HH:MM:SS (UTC)
         
         columnValues.date4 = { 
           date: eventDate,
