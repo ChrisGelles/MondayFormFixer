@@ -215,6 +215,29 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
   }, [filterSelections, sourceItems, filterOrder]);
 
+  // Auto-select last criterion when only one option remains
+  useEffect(() => {
+    filterOrder.forEach((criterionId, position) => {
+      // Skip if already has a criterion
+      if (criterionId) return;
+      
+      // Get selected criteria before this position
+      const selectedCriteria = filterOrder.filter((id, idx) => idx < position && id !== '');
+      
+      // Find available criteria for this position
+      const availableCriteria = AVAILABLE_CRITERIA.filter(
+        c => !selectedCriteria.includes(c.id)
+      );
+      
+      // If only one option available, auto-select it
+      if (availableCriteria.length === 1) {
+        const newOrder = [...filterOrder];
+        newOrder[position] = availableCriteria[0].id;
+        setFilterOrder(newOrder);
+      }
+    });
+  }, [filterOrder]);
+
   const handleFilterOrderChange = (position: number, newCriterionId: string) => {
     const newOrder = [...filterOrder];
     
@@ -270,6 +293,24 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     
     setFilterSelections(newSelections);
     setSelectedEngagement('');
+
+    // Auto-populate next criterion if not already set
+    if (position < filterOrder.length - 1 && !filterOrder[position + 1]) {
+      const newOrder = [...filterOrder];
+      
+      // Get already selected criteria
+      const selectedCriteria = newOrder.filter((id, idx) => idx <= position && id !== '');
+      
+      // Find next available criterion
+      const availableCriteria = AVAILABLE_CRITERIA.filter(
+        c => !selectedCriteria.includes(c.id)
+      );
+      
+      if (availableCriteria.length > 0) {
+        newOrder[position + 1] = availableCriteria[0].id;
+        setFilterOrder(newOrder);
+      }
+    }
   };
 
   const validateEmail = (email: string): boolean => {
@@ -534,6 +575,10 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             const hasOptions = criterion && filterOptions[criterionId] && filterOptions[criterionId].length > 0;
             const isLoading = criterion && loading[criterionId];
 
+            // Disable if only one option (auto-selected) or if previous criterion not chosen
+            const isDisabled = (!isPreviousCriterionChosen && position > 0) || 
+                              (criterionId && availableCriteriaForPosition.length === 1);
+
             return (
               <div key={position} className="flexible-filter-row">
                 <div className="filter-position">
@@ -542,7 +587,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                     value={criterionId || ''}
                     onChange={(e) => handleFilterOrderChange(position, e.target.value)}
                     className="filter-order-select"
-                    disabled={!isPreviousCriterionChosen && position > 0}
+                    disabled={isDisabled}
                   >
                     <option value="">-- Select Criterion --</option>
                     {availableCriteriaForPosition.map(c => (
