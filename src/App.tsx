@@ -43,12 +43,13 @@ function App() {
     }
   };
 
-  const handleDisconnect = () => {
-    setIsConnected(false);
-    setApiToken('');
-    localStorage.removeItem('monday_api_token');
-    localStorage.removeItem('destination_board_id');
-  };
+  // Disconnect handler - currently unused as config panel is hidden
+  // const handleDisconnect = () => {
+  //   setIsConnected(false);
+  //   setApiToken('');
+  //   localStorage.removeItem('monday_api_token');
+  //   localStorage.removeItem('destination_board_id');
+  // };
 
   // Try to load token from environment variable or localStorage on mount
   useEffect(() => {
