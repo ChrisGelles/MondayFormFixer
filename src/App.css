@@ -147,6 +147,7 @@
 }
 
 .config-panel {
+  display: none !important;
   max-width: 800px;
   margin: 0 auto 2rem;
   padding: 2rem;
