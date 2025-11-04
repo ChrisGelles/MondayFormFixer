@@ -21,7 +21,7 @@ interface FilterCriterion {
 }
 
 const AVAILABLE_CRITERIA: FilterCriterion[] = [
-  { id: 'paCategory', label: 'PA Category', columnId: 'color_mkvnrc08' },
+  { id: 'paCategory', label: 'Theme', columnId: 'color_mkvnrc08' },
   { id: 'depth', label: 'Depth', columnId: 'color_mkvnyaj9' },
   { id: 'type', label: 'Type', columnId: 'dropdown_mkvn675a' },
   { id: 'audience', label: 'Audience', columnId: 'color_mkvnh5kw' },
@@ -40,8 +40,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   const [eventDuration, setEventDuration] = useState('');
   const [requesterDescription, setRequesterDescription] = useState('');
 
-  // Filter order - only first position pre-populated with PA Category
-  const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', '', '', '']);
+  // Filter order - all filters optional, users can choose to use them or not
+  const [filterOrder, setFilterOrder] = useState<string[]>(['', '', '', '']);
   
   // Filter selections - keyed by criterion ID
   const [filterSelections, setFilterSelections] = useState<Record<string, string>>({});
@@ -177,18 +177,31 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
   }, [filterSelections, sourceItems, filterOrder]);
 
-  // Load engagement options when all filters are selected
+  // Load engagement options - either all or filtered based on selections
   useEffect(() => {
-    // Only check non-empty criteria
-    const definedCriteria = filterOrder.filter(id => id !== '');
-    const allFiltersSelected = definedCriteria.length > 0 && definedCriteria.every(id => filterSelections[id]);
+    if (sourceItems.length === 0) {
+      setEngagementOptions([]);
+      return;
+    }
+
+    // Check which filters have been selected
+    const selectedFilters = Object.entries(filterSelections).filter(([_, value]) => value !== '');
     
-    if (allFiltersSelected && sourceItems.length > 0) {
-      const filters = definedCriteria.map(criterionId => {
+    // If no filters selected, show all engagements
+    if (selectedFilters.length === 0) {
+      const allEngagements = sourceItems.map(item => ({
+        name: item.name || '',
+        description: item.column_values?.find((c: any) => c.id === 'text_mkvnh9sm')?.text || '',
+        columnValues: {}
+      }));
+      setEngagementOptions(allEngagements);
+    } else {
+      // Filter items based on selected filter values
+      const filters = selectedFilters.map(([criterionId, value]) => {
         const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
         return {
           columnId: criterion!.columnId,
-          value: filterSelections[criterionId]
+          value: value
         };
       });
 
@@ -206,11 +219,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       }));
 
       setEngagementOptions(engagements);
-    } else {
-      setEngagementOptions([]);
-      setSelectedEngagement('');
     }
-  }, [filterSelections, sourceItems, filterOrder]);
+  }, [filterSelections, sourceItems]);
 
   // Auto-select last criterion when only one option remains
   useEffect(() => {
@@ -401,7 +411,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       const type = filterSelections['type'];
       const audience = filterSelections['audience'];
 
-      if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // PA Category (status)
+      if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // Theme (status)
       if (depth) columnValues.color_mkwr6zfj = { label: depth };             // Depth (status)
       if (type) columnValues.dropdown_mkwr1011 = { labels: [type] };         // Type (dropdown)
       if (audience) columnValues.color_mkwr3jx0 = { label: audience };       // Audience (status)
@@ -447,15 +457,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   const isFormValid = () => {
     return engagementName && requesterName && email && validateEmail(email) && 
-           eventDateTime && eventDuration && selectedEngagement;
+           department && eventDateTime && eventDuration && selectedEngagement;
   };
 
   const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
 
   return (
     <div className="flexible-filter-form">
-      <h2>Project Athena Content Request</h2>
-      <p className="form-subtitle">Order programming content for your museum event</p>
+      <h2>Engagement Request Form</h2>
+      <p className="form-subtitle">Request engagements for your Museum event</p>
 
       <form onSubmit={handleSubmit}>
         {/* User Information Section */}
@@ -505,15 +515,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
           <div className="form-row">
             <div className="form-field">
-              <label htmlFor="department">Department</label>
+              <label htmlFor="department">Department *</label>
               <input
                 id="department"
                 type="text"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                placeholder="Your department (optional)"
+                placeholder="Your department"
+                required
               />
-              <small>Optional</small>
             </div>
 
             <div className="form-field">
@@ -555,8 +565,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
         {/* Flexible Filter Selection */}
         <div className="form-section">
-          <h3>Select Content Filters</h3>
-          <p className="section-note">Choose your filter order, then select values to narrow down content</p>
+          <h3>Select Menu Filters</h3>
+          <p className="section-note">Choose your filter order, then select values to narrow down content (recommended: at least 2 filters)</p>
 
           {filterOrder.map((criterionId, position) => {
             const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
