@@ -1,14 +1,13 @@
 .flexible-filter-form {
   max-width: 800px;
   margin: 0 auto;
-  padding: var(--spacer_l);
+  padding: 0;
   background: white;
-  border-radius: var(--border_radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .flexible-filter-form h2 {
-  margin: 0 0 var(--heading_space) 0;
+  margin: var(--spacer_l) 0 var(--heading_space) 0;
+  padding: 0 var(--spacer_l);
   color: var(--color_text);
   font-family: var(--font_primary);
   font-size: 2.222rem;
@@ -19,6 +18,7 @@
 
 .form-subtitle {
   margin: 0 0 var(--spacer_l) 0;
+  padding: 0 var(--spacer_l) var(--spacer_l);
   color: var(--color_text);
   font-family: var(--font_secondary);
   font-size: 1rem;
@@ -26,13 +26,10 @@
 }
 
 .form-section {
-  margin-bottom: var(--content_space);
-  padding-bottom: var(--spacer_l);
-  border-bottom: 1px solid var(--border_color);
-}
-
-.form-section:last-of-type {
-  border-bottom: none;
+  margin: 0 var(--spacer_l) var(--spacer_l);
+  padding: var(--spacer_l);
+  border: 1px solid var(--border_color);
+  border-radius: var(--border_radius);
 }
 
 .form-section h3 {
@@ -302,7 +299,8 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  margin-top: 2rem;
+  margin: var(--spacer_l);
+  padding: 0;
 }
 
 .button-primary,
@@ -358,9 +356,10 @@
 }
 
 .submit-message {
-  margin-top: 1.5rem;
+  margin: 0 var(--spacer_l) var(--spacer_l);
   padding: 1rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--border_radius);
+  font-family: var(--font_secondary);
   font-weight: 500;
   text-align: center;
   animation: slideIn 0.3s ease-out;
