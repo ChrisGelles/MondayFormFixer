@@ -81,10 +81,17 @@
   border: var(--border_width) solid var(--border_color);
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_secondary);
-  color: var(--color_text);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
   background: white;
   transition: border-color 0.3s ease;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
+  opacity: 0.6;
 }
 
 .form-field input.input-error {
@@ -141,8 +148,8 @@
   border: var(--border_width) solid var(--border_color);
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_secondary);
-  color: var(--color_text);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
   background: white;
   transition: border-color 0.3s ease;
 }
@@ -160,8 +167,8 @@
   border: var(--border_width) solid var(--border_color);
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_secondary);
-  color: var(--color_text);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
   background: white;
   transition: border-color 0.3s ease;
 }
@@ -209,7 +216,7 @@
   background: white;
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_primary);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   font-weight: 700;
   color: var(--color_primary);
   cursor: pointer;
@@ -243,7 +250,8 @@
   border: var(--border_width) solid var(--border_color);
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_secondary);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
   background: white;
   transition: border-color 0.3s ease;
 }
@@ -296,8 +304,8 @@
   border: var(--border_width) solid var(--border_color);
   border-radius: var(--input_border_radius);
   font-size: 1rem;
-  font-family: var(--font_secondary);
-  color: var(--color_text);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  color: #231F20;
   background: white;
   transition: border-color 0.3s ease;
 }
