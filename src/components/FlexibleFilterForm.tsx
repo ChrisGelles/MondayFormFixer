@@ -463,11 +463,27 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         };
       }
 
-      // Add filter values based on their column types
-      const paCategory = filterSelections['paCategory'];
-      const depth = filterSelections['depth'];
-      const type = filterSelections['type'];
-      const audience = filterSelections['audience'];
+      // Add filter values - use manually set values if available, otherwise get from engagement
+      const engagementItem = sourceItems.find(item => item.name === selectedEngagement);
+      
+      // Helper function to get filter value (manual selection or from engagement)
+      const getFilterValue = (criterionId: string, columnId: string): string | null => {
+        // If user manually set this filter, use it
+        if (manuallySetFilters.has(criterionId) && filterSelections[criterionId]) {
+          return filterSelections[criterionId];
+        }
+        // Otherwise, get from engagement item in source board
+        if (engagementItem) {
+          const column = engagementItem.column_values?.find((c: any) => c.id === columnId);
+          return column?.text || null;
+        }
+        return null;
+      };
+      
+      const paCategory = getFilterValue('paCategory', 'color_mkvnrc08');
+      const depth = getFilterValue('depth', 'color_mkvnyaj9');
+      const type = getFilterValue('type', 'dropdown_mkvn675a');
+      const audience = getFilterValue('audience', 'color_mkvnh5kw');
 
       if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // Theme (status)
       if (depth) columnValues.color_mkwr6zfj = { label: depth };             // Depth (status)
