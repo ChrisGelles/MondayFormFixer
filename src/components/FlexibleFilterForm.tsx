@@ -40,6 +40,17 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   const [eventDuration, setEventDuration] = useState('');
   const [requesterDescription, setRequesterDescription] = useState('');
 
+  // Get current datetime for min attribute (prevent past dates)
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   // Filter order - start with Theme pre-selected, rest optional
   const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', '', '', '']);
   
@@ -533,6 +544,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                 type="datetime-local"
                 value={eventDateTime}
                 onChange={(e) => setEventDateTime(e.target.value)}
+                min={getCurrentDateTime()}
                 step="1800"
                 required
               />
