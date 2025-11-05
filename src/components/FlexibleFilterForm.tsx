@@ -585,6 +585,11 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             const isDisabled = (!isPreviousCriterionChosen && position > 0) || 
                               (!!criterionId && availableCriteriaForPosition.length === 1);
 
+            // Hide rows 3 and 4 (positions 2 and 3) until previous criterion is selected
+            if (position >= 2 && !isPreviousCriterionChosen) {
+              return null;
+            }
+
             return (
               <div key={position} className="flexible-filter-row">
                 <div className="filter-position">
@@ -594,7 +599,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                     className="filter-order-select"
                     disabled={isDisabled}
                   >
-                    <option value="">-- Select Criterion --</option>
+                    <option value="">--</option>
                     {availableCriteriaForPosition.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
