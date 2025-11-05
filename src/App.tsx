@@ -17,6 +17,34 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const isTransparent = urlParams.get('transparent') === 'true';
 
+  // Send height updates to parent window for iframe auto-resizing
+  useEffect(() => {
+    const sendHeight = () => {
+      const height = document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: 'resize', height }, '*');
+    };
+
+    // Send initial height
+    sendHeight();
+
+    // Send height on window resize
+    window.addEventListener('resize', sendHeight);
+
+    // Observe DOM changes and send height updates
+    const observer = new MutationObserver(sendHeight);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      characterData: true
+    });
+
+    return () => {
+      window.removeEventListener('resize', sendHeight);
+      observer.disconnect();
+    };
+  }, []);
+
   const handleConnect = async () => {
     if (!apiToken) {
       setError('Please enter an API token');
