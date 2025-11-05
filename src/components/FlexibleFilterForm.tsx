@@ -40,8 +40,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   const [eventDuration, setEventDuration] = useState('');
   const [requesterDescription, setRequesterDescription] = useState('');
 
-  // Filter order - all filters optional, users can choose to use them or not
-  const [filterOrder, setFilterOrder] = useState<string[]>(['', '', '', '']);
+  // Filter order - start with Theme pre-selected, rest optional
+  const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', '', '', '']);
   
   // Filter selections - keyed by criterion ID
   const [filterSelections, setFilterSelections] = useState<Record<string, string>>({});
@@ -565,8 +565,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
         {/* Flexible Filter Selection */}
         <div className="form-section">
-          <h3>Select Menu Filters</h3>
-          <p className="section-note">Choose your filter order, then select values to narrow down content (recommended: at least 2 filters)</p>
+          <h3>Filter By...</h3>
 
           {filterOrder.map((criterionId, position) => {
             const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
@@ -589,7 +588,6 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             return (
               <div key={position} className="flexible-filter-row">
                 <div className="filter-position">
-                  <label>Filter {position + 1}</label>
                   <select
                     value={criterionId || ''}
                     onChange={(e) => handleFilterOrderChange(position, e.target.value)}
@@ -605,15 +603,11 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
                 <div className="filter-value">
                   {!criterionId ? (
-                    <div className="disabled-select">
-                      <label>Select criterion first</label>
-                      <select disabled className="disabled-select">
-                        <option>Choose a criterion above</option>
-                      </select>
-                    </div>
+                    <select disabled className="disabled-select">
+                      <option>--</option>
+                    </select>
                   ) : (
                     <>
-                      <label>Select {criterion?.label || 'Value'}</label>
                       {isLoading ? (
                         <div className="loading-select">Loading options...</div>
                       ) : !isPreviousSelected ? (
@@ -628,7 +622,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                           onChange={(e) => handleFilterSelection(criterionId, e.target.value)}
                           className="filter-value-select"
                         >
-                          <option value="">-- Select {criterion?.label} --</option>
+                          <option value="">--</option>
                           {filterOptions[criterionId]?.map(option => (
                             <option key={option} value={option}>{option}</option>
                           ))}
@@ -644,7 +638,6 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
           {/* Engagement Selection */}
           {engagementOptions.length > 0 && (
             <div className="form-field engagement-field">
-              <label htmlFor="engagement">Engagement Name *</label>
               <select
                 id="engagement"
                 value={selectedEngagement}
