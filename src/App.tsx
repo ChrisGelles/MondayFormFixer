@@ -12,6 +12,10 @@ function App() {
   // Form configuration
   const [sourceBoardId, setSourceBoardId] = useState('');
   const [destinationBoardId, setDestinationBoardId] = useState('');
+  
+  // Check for transparent parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isTransparent = urlParams.get('transparent') === 'true';
 
   const handleConnect = async () => {
     if (!apiToken) {
@@ -96,7 +100,7 @@ function App() {
 
   if (!isConnected) {
     return (
-      <div className="app">
+      <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
         <div className="connection-panel">
           <h1>Monday Form Fixer</h1>
           <p>Connect to Monday.com to get started</p>
@@ -140,7 +144,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
       {/* Configuration panel hidden - see README.md for setup instructions */}
 
       {isConfigured && (
