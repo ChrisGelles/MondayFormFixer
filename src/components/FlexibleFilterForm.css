@@ -20,7 +20,7 @@
   margin: 0 0 var(--spacer_l) 0;
   padding: 0 var(--spacer_l) var(--spacer_l);
   color: var(--color_text);
-  font-family: var(--font_secondary);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   font-size: 1rem;
   opacity: 0.8;
 }
@@ -33,13 +33,13 @@
 }
 
 .form-section h3 {
-  margin: 0 0 var(--spacer_s) 0;
+  margin: 0 0 var(--spacer_m) 0;
   color: var(--color_text);
   font-family: var(--font_primary);
-  font-size: 1.444rem;
+  font-size: 0.889rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02rem;
+  letter-spacing: 0.066rem;
 }
 
 .section-note {
@@ -78,7 +78,7 @@
   width: 100%;
   height: var(--input_height);
   padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  border: 1px solid #D7D7D7 !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
@@ -108,7 +108,7 @@
 
 .form-field small {
   display: block;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
   color: #888;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   font-size: 0.778rem;
@@ -146,7 +146,7 @@
   flex: 2;
   height: var(--input_height);
   padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  border: 1px solid #D7D7D7 !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
@@ -162,15 +162,16 @@
 
 .datetime-picker .time-select {
   flex: 1;
-  min-width: 80px;
+  min-width: 100px;
   height: var(--input_height);
-  padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  padding: 0 2.5rem 0 1rem !important;
+  border: 1px solid #D7D7D7 !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   color: #231F20 !important;
   background: white !important;
+  background-position: right 0.5rem center !important;
   transition: border-color 0.3s ease;
 }
 
@@ -205,17 +206,21 @@
 
 .filter-position label {
   margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
-  font-size: 0.9rem;
+  font-family: var(--font_primary);
+  font-weight: 700;
+  color: var(--color_text);
+  font-size: 0.722rem;
+  text-transform: uppercase;
+  letter-spacing: 0.066rem;
 }
 
 .filter-order-select {
   width: 100%;
   height: var(--input_height);
-  padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  padding: 0 2.5rem 0 1rem !important;
+  border: 1px solid #D7D7D7 !important;
   background: white !important;
+  background-position: right 0.5rem center !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
@@ -241,21 +246,25 @@
 
 .filter-value label {
   margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #444;
-  font-size: 0.95rem;
+  font-family: var(--font_primary);
+  font-weight: 700;
+  color: var(--color_text);
+  font-size: 0.722rem;
+  text-transform: uppercase;
+  letter-spacing: 0.066rem;
 }
 
 .filter-value-select {
   width: 100%;
   height: var(--input_height);
-  padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  padding: 0 2.5rem 0 1rem !important;
+  border: 1px solid #D7D7D7 !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   color: #231F20 !important;
   background: white !important;
+  background-position: right 0.5rem center !important;
   transition: border-color 0.3s ease;
 }
 
@@ -265,24 +274,32 @@
 }
 
 .disabled-select {
+  width: 100%;
   height: var(--input_height);
-  padding: 0 1rem;
-  border: var(--border_width) solid var(--border_color);
-  border-radius: var(--input_border_radius);
-  background: var(--color_light);
+  padding: 0 1rem !important;
+  border: 1px solid #D7D7D7 !important;
+  border-radius: var(--input_border_radius) !important;
+  background: var(--color_light) !important;
   color: #999;
-  font-size: 1rem;
-  font-family: var(--font_secondary);
+  font-size: 0.778rem;
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  font-style: normal;
 }
 
 .loading-select {
-  padding: 0.75rem;
-  color: #666;
-  font-style: italic;
-  background: #f9f9f9;
-  border-radius: 8px;
+  height: var(--input_height);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color_text);
+  font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
+  font-size: 0.778rem;
+  font-style: normal;
+  background: var(--color_light);
+  border-radius: var(--input_border_radius);
   text-align: center;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #D7D7D7;
 }
 
 .no-options {
@@ -304,13 +321,14 @@
 .engagement-field select {
   width: 100%;
   height: var(--input_height);
-  padding: 0 1rem !important;
-  border: 1px solid #231F20 !important;
+  padding: 0 2.5rem 0 1rem !important;
+  border: 1px solid #D7D7D7 !important;
   border-radius: var(--input_border_radius) !important;
   font-size: 1rem;
   font-family: "DIN2014-Regular", var(--font_primary), sans-serif;
   color: #231F20 !important;
   background: white !important;
+  background-position: right 0.5rem center !important;
   transition: border-color 0.3s ease;
 }
 
