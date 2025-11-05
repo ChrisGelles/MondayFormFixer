@@ -571,9 +571,9 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                   className="time-select"
                 >
                   <option value="">Hour</option>
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, '0')}>
-                      {String(i).padStart(2, '0')}
+                  {Array.from({ length: 16 }, (_, i) => i + 8).map(hour => (
+                    <option key={hour} value={String(hour).padStart(2, '0')}>
+                      {String(hour).padStart(2, '0')}
                     </option>
                   ))}
                 </select>
