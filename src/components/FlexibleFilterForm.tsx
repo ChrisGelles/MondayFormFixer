@@ -480,8 +480,10 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   };
 
   const isFormValid = () => {
+    // Filters are optional, only require user info, date/time, and engagement selection
     return engagementName && requesterName && email && validateEmail(email) && 
-           department && eventDateTime && eventDuration && selectedEngagement;
+           department && eventDate && eventHour && eventMinute && 
+           eventDuration && selectedEngagement;
   };
 
   const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
