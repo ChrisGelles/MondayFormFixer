@@ -136,17 +136,46 @@
 
 .datetime-picker .date-input {
   flex: 2;
+  height: var(--input_height);
+  padding: 0 1rem;
+  border: var(--border_width) solid var(--border_color);
+  border-radius: var(--input_border_radius);
+  font-size: 1rem;
+  font-family: var(--font_secondary);
+  color: var(--color_text);
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.datetime-picker .date-input:focus {
+  outline: none;
+  border-color: var(--color_dark);
 }
 
 .datetime-picker .time-select {
   flex: 1;
   min-width: 80px;
+  height: var(--input_height);
+  padding: 0 1rem;
+  border: var(--border_width) solid var(--border_color);
+  border-radius: var(--input_border_radius);
+  font-size: 1rem;
+  font-family: var(--font_secondary);
+  color: var(--color_text);
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.datetime-picker .time-select:focus {
+  outline: none;
+  border-color: var(--color_dark);
 }
 
 .datetime-picker .time-separator {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #666;
+  color: var(--color_text);
+  font-family: var(--font_secondary);
 }
 
 /* Flexible Filter Rows */
@@ -256,9 +285,26 @@
 }
 
 .engagement-field {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #e0e0e0;
+  margin-top: var(--spacer_s);
+  padding-top: var(--spacer_s);
+  border-top: 1px solid var(--border_color);
+}
+
+.engagement-field select {
+  height: var(--input_height);
+  padding: 0 1rem;
+  border: var(--border_width) solid var(--border_color);
+  border-radius: var(--input_border_radius);
+  font-size: 1rem;
+  font-family: var(--font_secondary);
+  color: var(--color_text);
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.engagement-field select:focus {
+  outline: none;
+  border-color: var(--color_dark);
 }
 
 .engagement-preview {
