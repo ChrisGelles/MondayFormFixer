@@ -37,19 +37,29 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   const [email, setEmail] = useState('');
   const [department, setDepartment] = useState('');
   const [eventDateTime, setEventDateTime] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [eventHour, setEventHour] = useState('');
+  const [eventMinute, setEventMinute] = useState('');
   const [eventDuration, setEventDuration] = useState('');
   const [requesterDescription, setRequesterDescription] = useState('');
 
-  // Get current datetime for min attribute (prevent past dates)
-  const getCurrentDateTime = () => {
+  // Get current date for min attribute (prevent past dates)
+  const getCurrentDate = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${year}-${month}-${day}`;
   };
+
+  // Update eventDateTime when date/time components change
+  useEffect(() => {
+    if (eventDate && eventHour && eventMinute) {
+      setEventDateTime(`${eventDate}T${eventHour}:${eventMinute}`);
+    } else {
+      setEventDateTime('');
+    }
+  }, [eventDate, eventHour, eventMinute]);
 
   // Filter order - start with Theme pre-selected, rest optional
   const [filterOrder, setFilterOrder] = useState<string[]>(['paCategory', '', '', '']);
@@ -459,6 +469,9 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     setEmailError('');
     setDepartment('');
     setEventDateTime('');
+    setEventDate('');
+    setEventHour('');
+    setEventMinute('');
     setEventDuration('');
     setRequesterDescription('');
     setFilterSelections({});
@@ -538,16 +551,42 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             </div>
 
             <div className="form-field">
-              <label htmlFor="eventDateTime">Event Date & Time *</label>
-              <input
-                id="eventDateTime"
-                type="datetime-local"
-                value={eventDateTime}
-                onChange={(e) => setEventDateTime(e.target.value)}
-                min={getCurrentDateTime()}
-                step="1800"
-                required
-              />
+              <label htmlFor="eventDate">Event Date & Time *</label>
+              <div className="datetime-picker">
+                <input
+                  id="eventDate"
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  min={getCurrentDate()}
+                  required
+                  className="date-input"
+                />
+                <select
+                  value={eventHour}
+                  onChange={(e) => setEventHour(e.target.value)}
+                  required
+                  className="time-select"
+                >
+                  <option value="">Hour</option>
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={String(i).padStart(2, '0')}>
+                      {String(i).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <span className="time-separator">:</span>
+                <select
+                  value={eventMinute}
+                  onChange={(e) => setEventMinute(e.target.value)}
+                  required
+                  className="time-select"
+                >
+                  <option value="">Min</option>
+                  <option value="00">00</option>
+                  <option value="30">30</option>
+                </select>
+              </div>
             </div>
           </div>
 
