@@ -1,13 +1,44 @@
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  line-height: 1.5;
+  /* CMNH Design System */
+  --base_font_size: clamp(12px, calc(10px + .5vw), 18px);
+  --spacer_xs: .667rem;
+  --spacer_s: 1.111rem;
+  --spacer_m: 1.667rem;
+  --spacer_l: 2.222rem;
+  --spacer_xl: 3.056rem;
+  --content_space: 2.222rem;
+  --heading_space: .667rem;
+  
+  /* CMNH Colors */
+  --color_primary: #49CEF8;
+  --color_secondary: #671F79;
+  --color_dark: #231F20;
+  --color_light: #ECEAE8;
+  --color_text: #231F20;
+  --color_success: #1A936F;
+  --color_error: #ED6A5A;
+  --color_border: #D9DCE0;
+  
+  /* CMNH Typography */
+  --font_primary: "din-2014", sans-serif;
+  --font_secondary: "museo-slab", serif;
+  
+  /* CMNH Form Elements */
+  --button_height: 2.444rem;
+  --button_border_radius: 5px;
+  --input_height: 3.167rem;
+  --input_border_radius: 4px;
+  --border_color: var(--color_border);
+  --border_radius: 10px;
+
+  font-family: var(--font_secondary);
+  line-height: 1.875;
+  font-size: var(--base_font_size);
+  color: var(--color_text);
   font-weight: 400;
 
   color-scheme: light;
-  color: #213547;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

@@ -43,14 +43,20 @@
 
 .connection-panel h1 {
   margin-top: 0;
-  color: #333;
+  color: var(--color_text);
+  font-family: var(--font_primary);
+  font-weight: 700;
+  text-transform: uppercase;
   text-align: center;
+  letter-spacing: 0.02rem;
 }
 
 .connection-panel p {
   text-align: center;
-  color: #666;
-  margin-bottom: 2rem;
+  color: var(--color_text);
+  font-family: var(--font_secondary);
+  margin-bottom: var(--spacer_l);
+  opacity: 0.8;
 }
 
 .form-group {
@@ -60,16 +66,23 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
+  font-family: var(--font_primary);
+  font-weight: 700;
+  color: var(--color_text);
+  font-size: 0.722rem;
+  text-transform: uppercase;
+  letter-spacing: 0.066rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+  height: var(--input_height);
+  padding: 0 1rem;
+  border: var(--border_width) solid var(--border_color);
+  border-radius: var(--input_border_radius);
   font-size: 1rem;
+  font-family: var(--font_secondary);
+  color: var(--color_text);
   box-sizing: border-box;
 }
 
@@ -82,38 +95,45 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color_dark);
 }
 
 .connect-button {
   width: 100%;
-  padding: 1rem;
-  background: #0073ea;
-  color: white;
+  height: var(--button_height);
+  padding: 0 1.5rem;
+  background: var(--color_primary);
+  color: var(--color_text);
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--button_border_radius);
+  font-family: var(--font_primary);
+  font-size: 0.722rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.066rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 
 .connect-button:hover:not(:disabled) {
-  background: #0060c2;
+  background: var(--color_dark);
+  color: white;
 }
 
 .connect-button:disabled {
   background: #ccc;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .error-message {
   padding: 1rem;
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  border-radius: 6px;
+  background: var(--color_error);
+  color: white;
+  border: var(--border_width) solid var(--color_error);
+  border-radius: var(--border_radius);
   margin-bottom: 1rem;
+  font-family: var(--font_secondary);
 }
 
 .help-text {
