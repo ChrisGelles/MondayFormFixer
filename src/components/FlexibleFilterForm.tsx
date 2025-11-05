@@ -533,6 +533,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
                 type="datetime-local"
                 value={eventDateTime}
                 onChange={(e) => setEventDateTime(e.target.value)}
+                step="1800"
                 required
               />
             </div>
