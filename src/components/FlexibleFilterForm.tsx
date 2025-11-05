@@ -80,6 +80,9 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   // Source items
   const [sourceItems, setSourceItems] = useState<any[]>([]);
   
+  // Track which filters were manually set by user (vs auto-populated)
+  const [manuallySetFilters, setManuallySetFilters] = useState<Set<string>>(new Set());
+  
   // Form state
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -309,17 +312,27 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   const handleFilterSelection = (criterionId: string, value: string) => {
     const position = filterOrder.indexOf(criterionId);
+    const newManuallySet = new Set(manuallySetFilters);
     
     // Update this selection
     const newSelections = { ...filterSelections };
-    newSelections[criterionId] = value;
+    
+    if (value) {
+      newSelections[criterionId] = value;
+      newManuallySet.add(criterionId); // Mark as manually set
+    } else {
+      delete newSelections[criterionId];
+      newManuallySet.delete(criterionId);
+    }
     
     // Clear selections after this position
     for (let i = position + 1; i < filterOrder.length; i++) {
       delete newSelections[filterOrder[i]];
+      newManuallySet.delete(filterOrder[i]);
     }
     
     setFilterSelections(newSelections);
+    setManuallySetFilters(newManuallySet);
     setSelectedEngagement('');
 
     // Auto-populate next criterion if not already set
@@ -339,6 +352,30 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         setFilterOrder(newOrder);
       }
     }
+  };
+
+  // Handle engagement selection - auto-populate filter values from engagement if not manually set
+  const handleEngagementSelection = (engagementName: string) => {
+    setSelectedEngagement(engagementName);
+    
+    // Find the engagement item in sourceItems
+    const engagementItem = sourceItems.find(item => item.name === engagementName);
+    if (!engagementItem) return;
+    
+    // Auto-populate filter values from engagement if user hasn't manually set them
+    const newSelections = { ...filterSelections };
+    
+    AVAILABLE_CRITERIA.forEach(criterion => {
+      // Only auto-populate if user hasn't manually set this filter
+      if (!manuallySetFilters.has(criterion.id)) {
+        const column = engagementItem.column_values?.find((c: any) => c.id === criterion.columnId);
+        if (column && column.text) {
+          newSelections[criterion.id] = column.text;
+        }
+      }
+    });
+    
+    setFilterSelections(newSelections);
   };
 
   const validateEmail = (email: string): boolean => {
@@ -475,6 +512,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     setEventDuration('');
     setRequesterDescription('');
     setFilterSelections({});
+    setManuallySetFilters(new Set());
     setSelectedEngagement('');
     setSubmitMessage(null);
   };
@@ -700,7 +738,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
               <select
                 id="engagement"
                 value={selectedEngagement}
-                onChange={(e) => setSelectedEngagement(e.target.value)}
+                onChange={(e) => handleEngagementSelection(e.target.value)}
                 required
               >
                 <option value="">-- Select Engagement --</option>
