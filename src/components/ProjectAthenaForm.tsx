@@ -58,6 +58,7 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
     depth: 'color_mkvnyaj9',           // Status column
     type: 'dropdown_mkvn675a',         // Dropdown column
     audience: 'color_mkvnh5kw',        // Status column
+    status: 'color_mkxxab7g',          // Status column (for filtering Active items)
     engagementName: 'name',            // Item name
     description: 'text_mkvnh9sm'       // Text column
   };
@@ -184,7 +185,12 @@ export const ProjectAthenaForm: React.FC<ProjectAthenaFormProps> = ({
     setLoading(prev => ({ ...prev, source: true }));
     try {
       const items = await mondayService.getBoardItems(sourceBoardId);
-      setSourceItems(items);
+      // Filter to only show items with Status = "Active"
+      const activeItems = items.filter(item => {
+        const statusColumn = item.column_values?.find((col: any) => col.id === COLUMN_IDS.status);
+        return statusColumn && statusColumn.text === 'Active';
+      });
+      setSourceItems(activeItems);
     } catch (error) {
       console.error('Error loading source items:', error);
     } finally {

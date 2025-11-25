@@ -90,13 +90,21 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   const mondayService = getMondayService();
 
+  // Status column ID for filtering Active items
+  const STATUS_COLUMN_ID = 'color_mkxxab7g';
+
   // Load source items
   useEffect(() => {
     const loadSourceItems = async () => {
       setLoading(prev => ({ ...prev, source: true }));
       try {
         const items = await mondayService.getBoardItems(sourceBoardId);
-        setSourceItems(items);
+        // Filter to only show items with Status = "Active"
+        const activeItems = items.filter(item => {
+          const statusColumn = item.column_values?.find((col: any) => col.id === STATUS_COLUMN_ID);
+          return statusColumn && statusColumn.text === 'Active';
+        });
+        setSourceItems(activeItems);
       } catch (error) {
         console.error('Error loading source items:', error);
       } finally {
