@@ -127,7 +127,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
       setLoading(prev => ({ ...prev, [criterion.id]: true }));
       try {
-        const values = await getUniqueValuesFromColumn(sourceBoardId, criterion.columnId);
+        // Get values from actual items (not column settings) to ensure exact match during filtering
+        const uniqueValues = new Set<string>();
+        sourceItems.forEach(item => {
+          const column = item.column_values?.find((c: any) => c.id === criterion.columnId);
+          if (column && column.text) {
+            uniqueValues.add(column.text);
+          }
+        });
+        const values = Array.from(uniqueValues).sort();
         setFilterOptions(prev => ({ ...prev, [criterion.id]: values }));
       } catch (error) {
         console.error(`Error loading options for ${criterion.label}:`, error);
@@ -139,7 +147,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     if (sourceBoardId) {
       loadFirstFilterOptions();
     }
-  }, [sourceBoardId, filterOrder]);
+  }, [sourceBoardId, filterOrder, sourceItems]);
 
   // When a filter is selected, load options for the next filter
   useEffect(() => {
@@ -389,6 +397,8 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   };
 
   const handleFilterSelection = (criterionId: string, value: string) => {
+    console.log(`🎯 handleFilterSelection called:`, { criterionId, value, currentFilterSelections: filterSelections });
+    
     const position = filterOrder.indexOf(criterionId);
     const newManuallySet = new Set(manuallySetFilters);
     
@@ -398,9 +408,11 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     if (value) {
       newSelections[criterionId] = value;
       newManuallySet.add(criterionId); // Mark as manually set
+      console.log(`✅ Setting filter: ${criterionId} = "${value}"`);
     } else {
       delete newSelections[criterionId];
       newManuallySet.delete(criterionId);
+      console.log(`❌ Clearing filter: ${criterionId}`);
     }
     
     // Clear selections after this position
@@ -409,6 +421,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       newManuallySet.delete(filterOrder[i]);
     }
     
+    console.log(`📝 New filterSelections:`, newSelections);
     setFilterSelections(newSelections);
     setManuallySetFilters(newManuallySet);
     setSelectedEngagement('');
