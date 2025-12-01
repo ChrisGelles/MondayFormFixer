@@ -223,7 +223,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
 
     // Check which filters have been selected
-    const selectedFilters = Object.entries(filterSelections).filter(([_, value]) => value !== '');
+    const selectedFilters = Object.entries(filterSelections).filter(([_, value]) => value !== '' && value !== null && value !== undefined);
+    
+    // Debug: Log current filter state
+    console.log('🔍 FILTERING ENGAGEMENTS - Current state:', {
+      sourceItemsCount: sourceItems.length,
+      filterSelections: JSON.stringify(filterSelections),
+      selectedFiltersCount: selectedFilters.length,
+      selectedFilters: selectedFilters.map(([id, val]) => ({ id, value: val }))
+    });
     
     // If no filters selected, show all engagements
     if (selectedFilters.length === 0) {
@@ -238,13 +246,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       const filters = selectedFilters.map(([criterionId, value]) => {
         const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
         if (!criterion) {
-          console.error(`Criterion not found: ${criterionId}`);
+          console.error(`❌ Criterion not found: ${criterionId}`);
           return null;
         }
-        return {
+        const filter = {
           columnId: criterion.columnId,
-          value: value
+          value: String(value).trim()
         };
+        console.log(`📋 Filter: ${criterion.label} (${criterion.columnId}) = "${filter.value}"`);
+        return filter;
       }).filter((f): f is { columnId: string; value: string } => f !== null);
 
       // If no valid filters, show all engagements
@@ -266,24 +276,32 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
             // Column not found - item doesn't match this filter
             return false;
           }
-          // Compare text values (trim whitespace)
+          
+          // Get the column's text value (this is what Monday.com uses for status columns)
           const columnText = (column.text || '').trim();
           const filterValue = (filter.value || '').trim();
+          
+          // Must match exactly - if text doesn't match, item is excluded
           const matches = columnText === filterValue;
           
-          // Debug logging (can be removed in production)
-          if (!matches && filter.columnId === 'color_mkvnrc08') {
-            console.debug(`Item "${item.name}" doesn't match Theme filter:`, {
-              columnText,
-              filterValue,
-              columnId: filter.columnId
-            });
+          // Debug logging for Theme filter to see what's happening
+          if (filter.columnId === 'color_mkvnrc08') {
+            console.log(`Item "${item.name}": Theme="${columnText}", Filter="${filterValue}", Match=${matches}`);
           }
           
           return matches;
         });
         
         return matchesAllFilters;
+      });
+      
+      // Debug: Log filtering results
+      console.log(`🔍 Filtering Results:`, {
+        totalItems: sourceItems.length,
+        filteredCount: filteredItems.length,
+        filters: filters.map(f => ({ columnId: f.columnId, value: f.value })),
+        filteredItemNames: filteredItems.map(i => i.name),
+        excludedCount: sourceItems.length - filteredItems.length
       });
 
       const engagements = filteredItems.map(item => ({
