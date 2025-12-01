@@ -3,6 +3,7 @@ import { getMondayService } from '../services/mondayService';
 import './FlexibleFilterForm.css';
 
 interface EngagementOption {
+  id: string;
   name: string;
   description: string;
   columnValues: Record<string, string>;
@@ -243,6 +244,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     // If no filters selected, show all engagements
     if (selectedFilters.length === 0) {
       const allEngagements = sourceItems.map(item => ({
+        id: item.id,
         name: item.name || '',
         description: item.column_values?.find((c: any) => c.id === 'text_mkvnh9sm')?.text || '',
         columnValues: {}
@@ -267,6 +269,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // If no valid filters, show all engagements
       if (filters.length === 0) {
         const allEngagements = sourceItems.map(item => ({
+          id: item.id,
           name: item.name || '',
           description: item.column_values?.find((c: any) => c.id === 'text_mkvnh9sm')?.text || '',
           columnValues: {}
@@ -312,6 +315,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       });
 
       const engagements = filteredItems.map(item => ({
+        id: item.id,
         name: item.name || '',
         description: item.column_values?.find((c: any) => c.id === 'text_mkvnh9sm')?.text || '',
         columnValues: {}
@@ -324,7 +328,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   // Clear selected engagement if it no longer matches current filters
   useEffect(() => {
     if (selectedEngagement && engagementOptions.length > 0) {
-      const stillMatches = engagementOptions.some(e => e.name === selectedEngagement);
+      const stillMatches = engagementOptions.some(e => e.id === selectedEngagement);
       if (!stillMatches) {
         setSelectedEngagement('');
       }
@@ -445,11 +449,11 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   };
 
   // Handle engagement selection - auto-populate filter values from engagement if not manually set
-  const handleEngagementSelection = (engagementName: string) => {
-    // Find the engagement item in sourceItems
-    const engagementItem = sourceItems.find(item => item.name === engagementName);
+  const handleEngagementSelection = (engagementId: string) => {
+    // Find the engagement item in sourceItems by ID
+    const engagementItem = sourceItems.find(item => item.id === engagementId);
     if (!engagementItem) {
-      console.warn('Engagement not found:', engagementName);
+      console.warn('Engagement not found:', engagementId);
       return;
     }
     
@@ -484,7 +488,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
     
     // Engagement is valid - set it as selected
-    setSelectedEngagement(engagementName);
+    setSelectedEngagement(engagementId);
     
     // Auto-populate filter values from engagement if user hasn't manually set them
     const newSelections = { ...filterSelections };
@@ -531,7 +535,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     }
 
     try {
-      const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
+      const selectedEngagementDetails = engagementOptions.find(e => e.id === selectedEngagement);
       
       // Format dates with time for Monday.com
       // Monday expects UTC time but displays in user's timezone
@@ -588,7 +592,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       }
 
       // Add filter values - use manually set values if available, otherwise get from engagement
-      const engagementItem = sourceItems.find(item => item.name === selectedEngagement);
+      const engagementItem = sourceItems.find(item => item.id === selectedEngagement);
       
       // Helper function to get filter value (manual selection or from engagement)
       const getFilterValue = (criterionId: string, columnId: string): string | null => {
@@ -664,7 +668,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
            eventDuration && selectedEngagement;
   };
 
-  const selectedEngagementDetails = engagementOptions.find(e => e.name === selectedEngagement);
+  const selectedEngagementDetails = engagementOptions.find(e => e.id === selectedEngagement);
 
   return (
     <div className="flexible-filter-form">
@@ -883,7 +887,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
               >
                 <option value="">-- Select Engagement --</option>
                 {engagementOptions.map(option => (
-                  <option key={option.name} value={option.name}>{option.name}</option>
+                  <option key={option.id} value={option.id}>{option.name}</option>
                 ))}
               </select>
             </div>
