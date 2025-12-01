@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getMondayService } from '../services/mondayService';
-import { getUniqueValuesFromColumn } from '../utils/mondayColumnHelper';
 import './FlexibleFilterForm.css';
 
 interface EngagementOption {
