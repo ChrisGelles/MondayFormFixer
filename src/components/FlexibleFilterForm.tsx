@@ -182,7 +182,13 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
           const filteredItems = sourceItems.filter(item => {
             return filters.every(filter => {
               const column = item.column_values?.find((c: any) => c.id === filter.columnId);
-              return column && column.text === filter.value;
+              if (!column) {
+                return false;
+              }
+              // Compare text values (trim whitespace and handle case)
+              const columnText = (column.text || '').trim();
+              const filterValue = (filter.value || '').trim();
+              return columnText === filterValue;
             });
           });
 
@@ -231,17 +237,53 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // Filter items based on selected filter values
       const filters = selectedFilters.map(([criterionId, value]) => {
         const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
+        if (!criterion) {
+          console.error(`Criterion not found: ${criterionId}`);
+          return null;
+        }
         return {
-          columnId: criterion!.columnId,
+          columnId: criterion.columnId,
           value: value
         };
-      });
+      }).filter((f): f is { columnId: string; value: string } => f !== null);
+
+      // If no valid filters, show all engagements
+      if (filters.length === 0) {
+        const allEngagements = sourceItems.map(item => ({
+          name: item.name || '',
+          description: item.column_values?.find((c: any) => c.id === 'text_mkvnh9sm')?.text || '',
+          columnValues: {}
+        }));
+        setEngagementOptions(allEngagements);
+        return;
+      }
 
       const filteredItems = sourceItems.filter(item => {
-        return filters.every(filter => {
+        // Item must match ALL filters
+        const matchesAllFilters = filters.every(filter => {
           const column = item.column_values?.find((c: any) => c.id === filter.columnId);
-          return column && column.text === filter.value;
+          if (!column) {
+            // Column not found - item doesn't match this filter
+            return false;
+          }
+          // Compare text values (trim whitespace)
+          const columnText = (column.text || '').trim();
+          const filterValue = (filter.value || '').trim();
+          const matches = columnText === filterValue;
+          
+          // Debug logging (can be removed in production)
+          if (!matches && filter.columnId === 'color_mkvnrc08') {
+            console.debug(`Item "${item.name}" doesn't match Theme filter:`, {
+              columnText,
+              filterValue,
+              columnId: filter.columnId
+            });
+          }
+          
+          return matches;
         });
+        
+        return matchesAllFilters;
       });
 
       const engagements = filteredItems.map(item => ({
@@ -253,6 +295,16 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       setEngagementOptions(engagements);
     }
   }, [filterSelections, sourceItems]);
+  
+  // Clear selected engagement if it no longer matches current filters
+  useEffect(() => {
+    if (selectedEngagement && engagementOptions.length > 0) {
+      const stillMatches = engagementOptions.some(e => e.name === selectedEngagement);
+      if (!stillMatches) {
+        setSelectedEngagement('');
+      }
+    }
+  }, [engagementOptions, selectedEngagement]);
 
   // Auto-select last criterion when only one option remains
   useEffect(() => {
@@ -364,11 +416,45 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   // Handle engagement selection - auto-populate filter values from engagement if not manually set
   const handleEngagementSelection = (engagementName: string) => {
-    setSelectedEngagement(engagementName);
-    
     // Find the engagement item in sourceItems
     const engagementItem = sourceItems.find(item => item.name === engagementName);
-    if (!engagementItem) return;
+    if (!engagementItem) {
+      console.warn('Engagement not found:', engagementName);
+      return;
+    }
+    
+    // Validate that the engagement matches current filter selections
+    const selectedFilters = Object.entries(filterSelections).filter(([_, value]) => value !== '');
+    if (selectedFilters.length > 0) {
+      const filters = selectedFilters.map(([criterionId, value]) => {
+        const criterion = AVAILABLE_CRITERIA.find(c => c.id === criterionId);
+        return {
+          columnId: criterion!.columnId,
+          value: value
+        };
+      });
+      
+      // Check if engagement matches all current filters
+      const matchesFilters = filters.every(filter => {
+        const column = engagementItem.column_values?.find((c: any) => c.id === filter.columnId);
+        if (!column) {
+          return false;
+        }
+        // Compare text values (trim whitespace and handle case)
+        const columnText = (column.text || '').trim();
+        const filterValue = (filter.value || '').trim();
+        return columnText === filterValue;
+      });
+      
+      if (!matchesFilters) {
+        console.warn('Selected engagement does not match current filters:', engagementName);
+        // Don't allow selection if it doesn't match filters
+        return;
+      }
+    }
+    
+    // Engagement is valid - set it as selected
+    setSelectedEngagement(engagementName);
     
     // Auto-populate filter values from engagement if user hasn't manually set them
     const newSelections = { ...filterSelections };
