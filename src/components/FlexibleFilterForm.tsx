@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getMondayService } from '../services/mondayService';
+import { syncAllLabels } from '../utils/syncLabels';
 import './FlexibleFilterForm.css';
 
 interface EngagementOption {
@@ -26,45 +27,6 @@ const AVAILABLE_CRITERIA: FilterCriterion[] = [
   { id: 'type', label: 'Type', columnId: 'dropdown_mkvn675a' },
   { id: 'audience', label: 'Audience', columnId: 'color_mkvnh5kw' },
 ];
-
-// Normalize Type values from source board to match destination dropdown labels
-// Destination dropdown labels: Tabling, Tabling/Gallery Talk, Field Trip, Dynamic Lecture, 
-// Virtual Field Trip, Hybrid Engagement, Gallery Tour, Media, Gallery Talk
-const normalizeTypeForDestination = (sourceType: string | null): string | null => {
-  if (!sourceType) return null;
-  
-  const trimmed = sourceType.trim();
-  
-  // Map source board values to destination dropdown labels
-  const typeMapping: Record<string, string> = {
-    'Gallery Talk, Tabling': 'Tabling/Gallery Talk',
-    'Tabling, Gallery Talk': 'Tabling/Gallery Talk',
-  };
-  
-  // Check for exact match
-  if (typeMapping[trimmed]) {
-    return typeMapping[trimmed];
-  }
-  
-  // Check for case-insensitive match
-  const matchingKey = Object.keys(typeMapping).find(
-    key => key.toLowerCase() === trimmed.toLowerCase()
-  );
-  if (matchingKey) {
-    return typeMapping[matchingKey];
-  }
-  
-  // Return original if it matches a destination label (case-insensitive check)
-  const destinationLabels = [
-    'Tabling', 'Tabling/Gallery Talk', 'Field Trip', 'Dynamic Lecture',
-    'Virtual Field Trip', 'Hybrid Engagement', 'Gallery Tour', 'Media', 'Gallery Talk'
-  ];
-  const matchingLabel = destinationLabels.find(
-    label => label.toLowerCase() === trimmed.toLowerCase()
-  );
-  
-  return matchingLabel || trimmed;
-};
 
 export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   sourceBoardId,
@@ -649,29 +611,27 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       
       const paCategory = getFilterValue('paCategory', 'color_mkvnrc08');
       const depth = getFilterValue('depth', 'color_mkvnyaj9');
-      const typeRaw = getFilterValue('type', 'dropdown_mkvn675a');
-      const type = normalizeTypeForDestination(typeRaw); // Normalize to match destination dropdown labels
+      const type = getFilterValue('type', 'dropdown_mkvn675a');
       const audience = getFilterValue('audience', 'color_mkvnh5kw');
 
       if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // Theme (status)
       if (depth) columnValues.color_mkwr6zfj = { label: depth };             // Depth (status)
-      if (type) columnValues.dropdown_mkwr1011 = { labels: [type] };         // Type (dropdown) - normalized
+      if (type) {
+        // Split comma-separated values and filter out deactivated labels
+        const typeLabels = type.split(',').map(s => s.trim()).filter(label => 
+          label && !['Media', 'Tabling/Gallery Talk'].includes(label)
+        );
+        if (typeLabels.length > 0) {
+          columnValues.dropdown_mkwr1011 = { labels: typeLabels };  // Type (dropdown)
+        }
+      }
       if (audience) columnValues.color_mkwr3jx0 = { label: audience };       // Audience (status)
 
       // Item name is the Event/Engagement Name
       const itemName = engagementName || `${requesterName} - ${selectedEngagement}`;
 
-      // Debug: Log all values being sent to destination board
-      console.log('🔍 VALUES BEING SENT TO DESTINATION BOARD:');
-      console.log('Raw filter values:', {
-        paCategory,
-        depth,
-        typeRaw,
-        type,
-        audience
-      });
-      console.log('Full columnValues object:', JSON.stringify(columnValues, null, 2));
-      console.log('Item name:', itemName);
+      // Sync labels from source to destination before creating item
+      await syncAllLabels(sourceBoardId, destinationBoardId);
 
       const result = await mondayService.createItem(destinationBoardId, itemName, columnValues);
 

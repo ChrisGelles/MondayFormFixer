@@ -17,7 +17,7 @@ class MondayService {
   /**
    * Execute a GraphQL query against Monday's API
    */
-  private async executeQuery(query: string, variables?: any): Promise<any> {
+  async executeQuery(query: string, variables?: any): Promise<any> {
     try {
       const response = await fetch(API_URL, {
         method: 'POST',
