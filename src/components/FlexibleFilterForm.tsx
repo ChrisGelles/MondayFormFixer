@@ -661,6 +661,18 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // Item name is the Event/Engagement Name
       const itemName = engagementName || `${requesterName} - ${selectedEngagement}`;
 
+      // Debug: Log all values being sent to destination board
+      console.log('🔍 VALUES BEING SENT TO DESTINATION BOARD:');
+      console.log('Raw filter values:', {
+        paCategory,
+        depth,
+        typeRaw,
+        type,
+        audience
+      });
+      console.log('Full columnValues object:', JSON.stringify(columnValues, null, 2));
+      console.log('Item name:', itemName);
+
       const result = await mondayService.createItem(destinationBoardId, itemName, columnValues);
 
       setSubmitMessage({
