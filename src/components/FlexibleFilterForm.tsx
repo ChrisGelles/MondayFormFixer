@@ -561,7 +561,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         text_mkwrjgwf: requesterDescription,             // Requester Description
         
         // Engagement from source board
-        text_mkwrmbrf: selectedEngagement,               // Engagement Name
+        text_mkwrmbrf: selectedEngagementDetails?.name,               // Engagement Name
         text_mkwrhk6d: selectedEngagementDetails?.description || '', // Engagement Description
         
         // Date Submitted (auto-filled with current date/time)
