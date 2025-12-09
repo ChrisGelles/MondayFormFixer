@@ -27,6 +27,45 @@ const AVAILABLE_CRITERIA: FilterCriterion[] = [
   { id: 'audience', label: 'Audience', columnId: 'color_mkvnh5kw' },
 ];
 
+// Normalize Type values from source board to match destination dropdown labels
+// Destination dropdown labels: Tabling, Tabling/Gallery Talk, Field Trip, Dynamic Lecture, 
+// Virtual Field Trip, Hybrid Engagement, Gallery Tour, Media, Gallery Talk
+const normalizeTypeForDestination = (sourceType: string | null): string | null => {
+  if (!sourceType) return null;
+  
+  const trimmed = sourceType.trim();
+  
+  // Map source board values to destination dropdown labels
+  const typeMapping: Record<string, string> = {
+    'Gallery Talk, Tabling': 'Tabling/Gallery Talk',
+    'Tabling, Gallery Talk': 'Tabling/Gallery Talk',
+  };
+  
+  // Check for exact match
+  if (typeMapping[trimmed]) {
+    return typeMapping[trimmed];
+  }
+  
+  // Check for case-insensitive match
+  const matchingKey = Object.keys(typeMapping).find(
+    key => key.toLowerCase() === trimmed.toLowerCase()
+  );
+  if (matchingKey) {
+    return typeMapping[matchingKey];
+  }
+  
+  // Return original if it matches a destination label (case-insensitive check)
+  const destinationLabels = [
+    'Tabling', 'Tabling/Gallery Talk', 'Field Trip', 'Dynamic Lecture',
+    'Virtual Field Trip', 'Hybrid Engagement', 'Gallery Tour', 'Media', 'Gallery Talk'
+  ];
+  const matchingLabel = destinationLabels.find(
+    label => label.toLowerCase() === trimmed.toLowerCase()
+  );
+  
+  return matchingLabel || trimmed;
+};
+
 export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   sourceBoardId,
   destinationBoardId
@@ -610,12 +649,13 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       
       const paCategory = getFilterValue('paCategory', 'color_mkvnrc08');
       const depth = getFilterValue('depth', 'color_mkvnyaj9');
-      const type = getFilterValue('type', 'dropdown_mkvn675a');
+      const typeRaw = getFilterValue('type', 'dropdown_mkvn675a');
+      const type = normalizeTypeForDestination(typeRaw); // Normalize to match destination dropdown labels
       const audience = getFilterValue('audience', 'color_mkvnh5kw');
 
       if (paCategory) columnValues.color_mkwrzjh2 = { label: paCategory };  // Theme (status)
       if (depth) columnValues.color_mkwr6zfj = { label: depth };             // Depth (status)
-      if (type) columnValues.dropdown_mkwr1011 = { labels: [type] };         // Type (dropdown)
+      if (type) columnValues.dropdown_mkwr1011 = { labels: [type] };         // Type (dropdown) - normalized
       if (audience) columnValues.color_mkwr3jx0 = { label: audience };       // Audience (status)
 
       // Item name is the Event/Engagement Name
