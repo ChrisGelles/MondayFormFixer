@@ -98,19 +98,7 @@ function App() {
 
   const isConfigured = sourceBoardId && destinationBoardId;
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Connecting to Monday.com...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Always show the form, even if credentials aren't configured
+  // Always show the form immediately, connect in background
   // The form component will handle disabled state
   return (
     <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
