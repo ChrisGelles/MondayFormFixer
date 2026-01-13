@@ -1,49 +1,54 @@
 // Monday.com API Service
-// This service handles all interactions with the Monday.com API
+// This service handles all interactions with the Monday.com API via Vercel serverless function
+// The API token is kept secure on the server side
 
-const API_URL = 'https://api.monday.com/v2';
-
-interface MondayConfig {
-  apiToken: string;
-}
+const API_ROUTE = '/api/monday';
 
 class MondayService {
-  private apiToken: string;
-
-  constructor(config: MondayConfig) {
-    this.apiToken = config.apiToken;
+  constructor() {
+    // No API token needed - handled server-side
   }
 
   /**
-   * Execute a GraphQL query against Monday's API
+   * Call the Vercel API route for Monday.com operations
    */
-  async executeQuery(query: string, variables?: any): Promise<any> {
+  private async callApiRoute(action: string, variables?: any, query?: string): Promise<any> {
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(API_ROUTE, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': this.apiToken,
-          'API-Version': '2024-10'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query,
-          variables
+          action,
+          variables,
+          query
         })
       });
 
       const result = await response.json();
 
-      if (result.errors) {
-        console.error('Monday API errors:', result.errors);
-        throw new Error(result.errors[0].message);
+      if (!response.ok) {
+        console.error('API route error:', result);
+        throw new Error(result.message || result.error || 'Unknown error');
+      }
+
+      if (!result.success) {
+        throw new Error(result.message || 'API request failed');
       }
 
       return result.data;
     } catch (error) {
-      console.error('Error executing Monday query:', error);
+      console.error('Error calling API route:', error);
       throw error;
     }
+  }
+
+  /**
+   * Execute a custom GraphQL query against Monday's API
+   */
+  async executeQuery(query: string, variables?: any): Promise<any> {
+    return this.callApiRoute('customQuery', variables, query);
   }
 
   /**
@@ -220,8 +225,8 @@ class MondayService {
 // Export singleton instance
 let mondayServiceInstance: MondayService | null = null;
 
-export const initializeMondayService = (apiToken: string): MondayService => {
-  mondayServiceInstance = new MondayService({ apiToken });
+export const initializeMondayService = (): MondayService => {
+  mondayServiceInstance = new MondayService();
   return mondayServiceInstance;
 };
 
