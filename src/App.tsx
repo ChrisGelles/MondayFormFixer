@@ -5,7 +5,6 @@ import './App.css';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Form configuration
@@ -47,7 +46,6 @@ function App() {
   // Auto-load credentials and connect on mount
   useEffect(() => {
     const connectToMonday = async () => {
-      setIsLoading(true);
       setError('');
 
       const envSourceBoard = import.meta.env.VITE_SOURCE_BOARD_ID;
@@ -88,15 +86,13 @@ function App() {
         } else {
           setError(`Connection error: ${errorMessage}. Form will be displayed but submissions will be disabled.`);
         }
-      } finally {
-        setIsLoading(false);
       }
     };
 
     connectToMonday();
   }, []);
 
-  const isConfigured = sourceBoardId && destinationBoardId;
+  const isConfigured = !!(sourceBoardId && destinationBoardId);
 
   // Always show the form immediately, connect in background
   // The form component will handle disabled state
