@@ -13,6 +13,7 @@ interface EngagementOption {
 interface FlexibleFilterFormProps {
   sourceBoardId: string;
   destinationBoardId: string;
+  isEnabled?: boolean;
 }
 
 interface FilterCriterion {
@@ -30,7 +31,8 @@ const AVAILABLE_CRITERIA: FilterCriterion[] = [
 
 export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   sourceBoardId,
-  destinationBoardId
+  destinationBoardId,
+  isEnabled = true
 }) => {
   // User input fields
   const [engagementName, setEngagementName] = useState('');
@@ -87,6 +89,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
   // Form state
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [emailError, setEmailError] = useState('');
 
   const mondayService = getMondayService();
@@ -523,6 +526,15 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isEnabled || !destinationBoardId) {
+      setSubmitMessage({ 
+        type: 'error', 
+        text: 'Form submission is disabled. Please configure Monday.com credentials.' 
+      });
+      return;
+    }
+
     setSubmitting(true);
     setSubmitMessage(null);
 
@@ -639,10 +651,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
         type: 'success',
         text: `Order submitted successfully! Request ID: ${result.id}`
       });
-
-      setTimeout(() => {
-        resetForm();
-      }, 3000);
+      setShowSuccessOverlay(true);
 
     } catch (error) {
       console.error('Error submitting order:', error);
@@ -653,6 +662,12 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAcknowledge = () => {
+    setShowSuccessOverlay(false);
+    setSubmitMessage(null);
+    resetForm();
   };
 
   const resetForm = () => {
@@ -933,7 +948,7 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
           <button
             type="submit"
             className="button-primary"
-            disabled={!isFormValid() || submitting}
+            disabled={!isFormValid() || submitting || !isEnabled}
           >
             {submitting ? 'Submitting...' : 'Submit Request'}
           </button>
@@ -945,6 +960,27 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
           </div>
         )}
       </form>
+
+      {showSuccessOverlay && (
+        <div className="success-overlay">
+          <div className="success-overlay-content">
+            <h1>SUCCESS!</h1>
+            <p>
+              Your engagement request has been submitted successfully.
+            </p>
+            <p>
+              We will be reaching out in the coming days to confirm your details.
+            </p>
+            <p className="thank-you">Thank You!</p>
+            <button 
+              className="acknowledge-button"
+              onClick={handleAcknowledge}
+            >
+              ACKNOWLEDGED
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

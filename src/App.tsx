@@ -44,129 +44,87 @@ function App() {
     };
   }, []);
 
-  const handleConnect = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // Initialize service (no API token needed - handled server-side)
-      const service = initializeMondayService();
-      const connected = await service.testConnection();
-      
-      if (connected) {
-        setIsConnected(true);
-        if (destinationBoardId) {
-          localStorage.setItem('destination_board_id', destinationBoardId);
-        }
-      } else {
-        setError('Failed to connect to Monday.com. Please check that MONDAY_API_TOKEN is set in Vercel environment variables.');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      // Provide helpful error message if it's about missing token
-      if (errorMessage.includes('token') || errorMessage.includes('MONDAY_API_TOKEN')) {
-        setError('Monday.com API token not configured on server. Please set MONDAY_API_TOKEN in Vercel environment variables.');
-      } else {
-        setError(`Connection error: ${errorMessage}`);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Disconnect handler - currently unused as config panel is hidden
-  // const handleDisconnect = () => {
-  //   setIsConnected(false);
-  //   setApiToken('');
-  //   localStorage.removeItem('monday_api_token');
-  //   localStorage.removeItem('destination_board_id');
-  // };
-
-  // Auto-connect on mount (no token needed - handled server-side)
+  // Auto-load credentials and connect on mount
   useEffect(() => {
-    const envSourceBoard = import.meta.env.VITE_SOURCE_BOARD_ID;
-    const envDestBoard = import.meta.env.VITE_DESTINATION_BOARD_ID;
-    const savedDestBoard = localStorage.getItem('destination_board_id');
-    
-    // Use environment variable for source board ID if available
-    if (envSourceBoard) {
-      setSourceBoardId(envSourceBoard);
-    } else {
-      // Default to the current Project Athena board
-      setSourceBoardId('10021032653');
-    }
-    
-    // Use environment variable for destination board ID if available
-    if (envDestBoard) {
-      setDestinationBoardId(envDestBoard);
-    } else if (savedDestBoard) {
-      setDestinationBoardId(savedDestBoard);
-    }
+    const connectToMonday = async () => {
+      setIsLoading(true);
+      setError('');
 
-    // Auto-connect to Monday.com
-    setIsLoading(true);
-    const service = initializeMondayService();
-    service.testConnection()
-      .then(connected => {
+      const envSourceBoard = import.meta.env.VITE_SOURCE_BOARD_ID;
+      const envDestBoard = import.meta.env.VITE_DESTINATION_BOARD_ID;
+      const savedDestBoard = localStorage.getItem('destination_board_id');
+      
+      // Use environment variable for source board ID if available
+      if (envSourceBoard) {
+        setSourceBoardId(envSourceBoard);
+      } else {
+        // Default to the current Project Athena board
+        setSourceBoardId('10021032653');
+      }
+      
+      // Use environment variable for destination board ID if available
+      if (envDestBoard) {
+        setDestinationBoardId(envDestBoard);
+      } else if (savedDestBoard) {
+        setDestinationBoardId(savedDestBoard);
+      }
+
+      try {
+        // Initialize service (no API token needed - handled server-side)
+        const service = initializeMondayService();
+        const connected = await service.testConnection();
+        
         if (connected) {
           setIsConnected(true);
+          setError(''); // Clear any previous errors
         } else {
           setError('Failed to connect to Monday.com. Please check that MONDAY_API_TOKEN is set in Vercel environment variables.');
         }
-      })
-      .catch(err => {
+      } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        // Provide helpful error message if it's about missing token
         if (errorMessage.includes('token') || errorMessage.includes('MONDAY_API_TOKEN')) {
           setError('Monday.com API token not configured on server. Please set MONDAY_API_TOKEN in Vercel environment variables.');
         } else {
-          setError(`Connection error: ${errorMessage}`);
+          setError(`Connection error: ${errorMessage}. Form will be displayed but submissions will be disabled.`);
         }
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    connectToMonday();
   }, []);
 
   const isConfigured = sourceBoardId && destinationBoardId;
 
+  // Show loading state
   if (isLoading) {
     return (
       <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
-        <div className="connection-panel">
-          <h1>Monday Form Fixer</h1>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
           <p>Connecting to Monday.com...</p>
         </div>
       </div>
     );
   }
 
-  if (!isConnected) {
-    return (
-      <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
-        <div className="connection-panel">
-          <h1>Monday Form Fixer</h1>
-          {error && <div className="error-message">{error}</div>}
-          <button 
-            onClick={handleConnect} 
-            disabled={isLoading}
-            className="connect-button"
-          >
-            {isLoading ? 'Connecting...' : 'Retry Connection'}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  // Always show the form, even if credentials aren't configured
+  // The form component will handle disabled state
   return (
     <div className="app" style={isTransparent ? { background: 'transparent' } : {}}>
-      {/* Configuration panel hidden - see README.md for setup instructions */}
-
+      {error && (
+        <div className="error-banner">
+          <div className="error-message">{error}</div>
+        </div>
+      )}
       {isConfigured && (
         <div className="form-container">
           <FlexibleFilterForm
             sourceBoardId={sourceBoardId}
             destinationBoardId={destinationBoardId}
+            isEnabled={isConnected && isConfigured}
           />
         </div>
       )}
