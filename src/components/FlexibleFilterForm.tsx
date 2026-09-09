@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getMondayService } from '../services/mondayService';
-import { syncAllLabels } from '../utils/syncLabels';
+import { reportLabelDrift } from '../utils/syncLabels';
 import './FlexibleFilterForm.css';
 
 interface EngagementOption {
@@ -642,10 +642,10 @@ export const FlexibleFilterForm: React.FC<FlexibleFilterFormProps> = ({
       // Item name is the Event/Engagement Name
       const itemName = engagementName || `${requesterName} - ${selectedEngagement}`;
 
-      // Sync labels from source to destination before creating item
-      await syncAllLabels(sourceBoardId, destinationBoardId);
-
       const result = await mondayService.createItem(destinationBoardId, itemName, columnValues);
+
+      // Read-only: log source/destination label drift. Must not block submit.
+      void reportLabelDrift(sourceBoardId, destinationBoardId);
 
       setSubmitMessage({
         type: 'success',
