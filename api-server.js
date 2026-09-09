@@ -66,7 +66,8 @@ app.post('/api/monday', async (req, res) => {
             create_item(
               board_id: $boardId,
               item_name: $itemName,
-              column_values: $columnValues
+              column_values: $columnValues,
+              create_labels_if_missing: true
             ) {
               id
               name
